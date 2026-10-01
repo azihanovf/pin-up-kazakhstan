@@ -25,7 +25,7 @@
       "b2",
       "send_to",
       "tg",
-      "offer",
+      "offer"
     ]);
 
     function getParam(name, fallback = "") {
@@ -56,15 +56,11 @@
         .filter((value) => value && value !== "#");
     }
 
-    function splitBonusParam(
-      raw,
-      fallbackLeft = "",
-      fallbackRight = ""
-    ) {
+    function splitBonusParam(raw, fallbackLeft = "", fallbackRight = "") {
       if (!raw || !raw.trim()) {
         return {
           top: fallbackLeft,
-          bottom: fallbackRight,
+          bottom: fallbackRight
         };
       }
 
@@ -73,19 +69,16 @@
 
       return {
         top: parts[0] ?? fallbackLeft,
-        bottom: parts.slice(1).join(" ") || fallbackRight,
+        bottom: parts.slice(1).join(" ") || fallbackRight
       };
     }
 
     function getBonusFallbackParts(raw) {
-      const normalized = raw
-        .trim()
-        .split(/\s+/)
-        .filter(Boolean);
+      const normalized = raw.trim().split(/\s+/).filter(Boolean);
 
       return {
         top: normalized[0] ?? "",
-        bottom: normalized.slice(1).join(" "),
+        bottom: normalized.slice(1).join(" ")
       };
     }
 
@@ -115,43 +108,17 @@
       return result;
     }
 
-    const lang = getParam(
-      "lang",
-      DEFAULTS.lang
-    );
+    const lang = getParam("lang", DEFAULTS.lang);
+    const brand = getParam("brand", DEFAULTS.brand);
+    const offerBase = getParam("offer", DEFAULTS.offerBase);
+    const sendTo = getTrackingParam(DEFAULTS.sendTo);
+    const trackingTargets = parseTrackingTargets(sendTo);
 
-    const brand = getParam(
-      "brand",
-      DEFAULTS.brand
-    );
+    const bonus1Raw = getParam("b1", DEFAULTS.b1);
+    const bonus2Raw = getParam("b2", DEFAULTS.b2);
 
-    const offerBase = getParam(
-      "offer",
-      DEFAULTS.offerBase
-    );
-
-    const sendTo = getTrackingParam(
-      DEFAULTS.sendTo
-    );
-
-    const trackingTargets =
-      parseTrackingTargets(sendTo);
-
-    const bonus1Raw = getParam(
-      "b1",
-      DEFAULTS.b1
-    );
-
-    const bonus2Raw = getParam(
-      "b2",
-      DEFAULTS.b2
-    );
-
-    const defaultBonus1 =
-      getBonusFallbackParts(DEFAULTS.b1);
-
-    const defaultBonus2 =
-      getBonusFallbackParts(DEFAULTS.b2);
+    const defaultBonus1 = getBonusFallbackParts(DEFAULTS.b1);
+    const defaultBonus2 = getBonusFallbackParts(DEFAULTS.b2);
 
     const bonus1 = splitBonusParam(
       bonus1Raw,
@@ -172,6 +139,7 @@
 
       lang,
       brand,
+
       offerBase,
       offerURI: buildOfferUrl(offerBase),
 
@@ -182,7 +150,7 @@
 
       bonuses: {
         first: bonus1,
-        second: bonus2,
+        second: bonus2
       },
 
       assets: {
@@ -206,8 +174,8 @@
           "https://alphaclick.click/wheel/bg-modal.avif",
 
         mask:
-          "https://alphaclick.click/wheel/wheel-mask.avif",
-      },
+          "https://alphaclick.click/wheel/wheel-mask.avif"
+      }
     };
   })();
 
@@ -231,36 +199,29 @@
 
 
   function getTextFitTargets(element) {
-    const paragraphs =
-      Array.from(
-        element.querySelectorAll("p")
-      );
+    const paragraphs = Array.from(
+      element.querySelectorAll("p")
+    );
 
     if (paragraphs.length) {
       return paragraphs;
     }
 
-    let fitTarget =
-      element.querySelector(
-        ":scope > .fit-text"
-      );
+    let fitTarget = element.querySelector(
+      ":scope > .fit-text"
+    );
 
     if (!fitTarget) {
-      const text =
-        element.textContent.trim();
+      const text = element.textContent.trim();
 
       if (!text) {
         return [];
       }
 
-      fitTarget =
-        document.createElement("span");
-
+      fitTarget = document.createElement("span");
       fitTarget.className = "fit-text";
       fitTarget.textContent = text;
-
-      fitTarget.style.display =
-        "inline-block";
+      fitTarget.style.display = "inline-block";
 
       element.textContent = "";
       element.appendChild(fitTarget);
@@ -271,8 +232,7 @@
 
 
   function resetFontSize(element) {
-    const targets =
-      getTextFitTargets(element);
+    const targets = getTextFitTargets(element);
 
     targets.forEach((target) => {
       target.style.fontSize = "";
@@ -283,33 +243,21 @@
 
 
   function getMeasuredTextWidth(element) {
-    return (
-      element.scrollWidth ||
-      element.offsetWidth
-    );
+    return element.scrollWidth || element.offsetWidth;
   }
 
 
-  function adjustFontSizeToFit(
-    element,
-    c,
-    options = {}
-  ) {
-    const targets =
-      getTextFitTargets(element);
+  function adjustFontSizeToFit(element, c, options = {}) {
+    const targets = getTextFitTargets(element);
 
-    const baseWidth =
-      element.offsetWidth;
-
-    const desiredWidth =
-      baseWidth * c;
+    const baseWidth = element.offsetWidth;
+    const desiredWidth = baseWidth * c;
 
     const maxRatio =
       options.maxRatio ??
       (c < 0.5 ? 0.62 : c);
 
-    const maxWidth =
-      baseWidth * maxRatio;
+    const maxWidth = baseWidth * maxRatio;
 
     const minFontSize =
       options.minFontSize ?? 6;
@@ -318,8 +266,7 @@
       options.maxFontSize ??
       (
         options.maxFontSizeRatio
-          ? baseWidth *
-            options.maxFontSizeRatio
+          ? baseWidth * options.maxFontSizeRatio
           : 100
       );
 
@@ -335,8 +282,7 @@
       )
     );
 
-    const step =
-      options.step ?? 0.5;
+    const step = options.step ?? 0.5;
 
     if (
       !baseWidth ||
@@ -347,19 +293,15 @@
     }
 
     targets.forEach((target) => {
-      let fontSize =
-        parseFloat(
-          window
-            .getComputedStyle(target)
-            .fontSize
-        );
+      let fontSize = parseFloat(
+        window.getComputedStyle(target).fontSize
+      );
 
       if (!fontSize) {
         return;
       }
 
-      target.style.whiteSpace =
-        "nowrap";
+      target.style.whiteSpace = "nowrap";
 
       if (fontSize > maxFontSize) {
         fontSize = maxFontSize;
@@ -369,8 +311,7 @@
       }
 
       while (
-        getMeasuredTextWidth(target) <
-          desiredWidth &&
+        getMeasuredTextWidth(target) < desiredWidth &&
         fontSize < maxFontSize
       ) {
         fontSize = Math.min(
@@ -383,8 +324,7 @@
       }
 
       while (
-        getMeasuredTextWidth(target) >
-          maxWidth &&
+        getMeasuredTextWidth(target) > maxWidth &&
         fontSize > minFontSize
       ) {
         fontSize = Math.max(
@@ -411,32 +351,26 @@
 
 
   function preloadImage(url) {
-    return new Promise(
-      (resolve, reject) => {
-        const img = new Image();
+    return new Promise((resolve, reject) => {
+      const img = new Image();
 
-        img.onload =
-          () => resolve(url);
+      img.onload = () => resolve(url);
 
-        img.onerror =
-          () => reject(
-            new Error(
-              `Failed to load image: ${url}`
-            )
-          );
+      img.onerror = () =>
+        reject(
+          new Error(
+            `Failed to load image: ${url}`
+          )
+        );
 
-        img.src = url;
-      }
-    );
+      img.src = url;
+    });
   }
 
 
   async function resolveBackgroundUrl() {
     try {
-      await preloadImage(
-        CONFIG.assets.bg
-      );
-
+      await preloadImage(CONFIG.assets.bg);
       return CONFIG.assets.bg;
     } catch (error) {
       return CONFIG.assets.bgFallback;
@@ -446,29 +380,19 @@
 
   async function applyAssets() {
     const section =
-      document.querySelector(
-        "section.body"
-      );
+      document.querySelector("section.body");
 
     const logo =
-      document.querySelector(
-        ".logo img"
-      );
+      document.querySelector(".logo img");
 
     const wheel =
-      document.querySelector(
-        ".wheel"
-      );
+      document.querySelector(".wheel");
 
     const start =
-      document.querySelector(
-        ".start"
-      );
+      document.querySelector(".start");
 
     const frameImg =
-      document.querySelector(
-        ".frame img"
-      );
+      document.querySelector(".frame img");
 
     if (section) {
       const bgUrl =
@@ -479,8 +403,7 @@
     }
 
     if (logo) {
-      logo.src =
-        CONFIG.assets.logo;
+      logo.src = CONFIG.assets.logo;
     }
 
     if (wheel) {
@@ -494,8 +417,7 @@
     }
 
     if (frameImg) {
-      frameImg.src =
-        CONFIG.assets.frame;
+      frameImg.src = CONFIG.assets.frame;
     }
 
     document
@@ -505,34 +427,25 @@
           `url("${CONFIG.assets.modalBg}") no-repeat center / cover`;
       });
 
-    document.documentElement
-      .style.setProperty(
-        "--wheel-mask-url",
-        `url("${CONFIG.assets.mask}")`
-      );
+    document.documentElement.style.setProperty(
+      "--wheel-mask-url",
+      `url("${CONFIG.assets.mask}")`
+    );
   }
 
 
   function applyI18n(t) {
     const wheelSegs =
-      document.querySelectorAll(
-        ".wheel-seg"
-      );
+      document.querySelectorAll(".wheel-seg");
 
     const startBtnText =
-      document.querySelector(
-        ".start p"
-      );
+      document.querySelector(".start p");
 
     const offerTitle =
-      document.querySelector(
-        ".offer h1"
-      );
+      document.querySelector(".offer h1");
 
     const offerText =
-      document.querySelector(
-        ".offer p"
-      );
+      document.querySelector(".offer p");
 
     const firstPopupTitle =
       document.querySelector(
@@ -545,9 +458,7 @@
       );
 
     const retryBtn =
-      document.querySelector(
-        "#secsp"
-      );
+      document.querySelector("#secsp");
 
     const claimBtn =
       document.querySelector(
@@ -561,54 +472,42 @@
 
     if (wheelSegs[0]) {
       wheelSegs[0]
-        .querySelector(
-          ".wheel-small-text"
-        )
+        .querySelector(".wheel-small-text")
         .textContent =
         t.wheel_plus_spins;
     }
 
     if (wheelSegs[1]) {
       wheelSegs[1]
-        .querySelector(
-          ".wheel-empty-text"
-        )
+        .querySelector(".wheel-empty-text")
         .textContent =
         t.wheel_retry;
     }
 
     if (wheelSegs[3]) {
       wheelSegs[3]
-        .querySelector(
-          ".wheel-empty-text"
-        )
+        .querySelector(".wheel-empty-text")
         .textContent =
         t.wheel_empty;
     }
 
     if (wheelSegs[4]) {
       wheelSegs[4]
-        .querySelector(
-          ".wheel-small-text"
-        )
+        .querySelector(".wheel-small-text")
         .textContent =
         t.wheel_plus_spins;
     }
 
     if (wheelSegs[5]) {
       wheelSegs[5]
-        .querySelector(
-          ".wheel-empty-text"
-        )
+        .querySelector(".wheel-empty-text")
         .textContent =
         t.wheel_retry;
     }
 
     if (wheelSegs[7]) {
       wheelSegs[7]
-        .querySelector(
-          ".wheel-empty-text"
-        )
+        .querySelector(".wheel-empty-text")
         .textContent =
         t.wheel_empty;
     }
@@ -651,9 +550,7 @@
 
   function applyBonuses(t) {
     const wheelSegs =
-      document.querySelectorAll(
-        ".wheel-seg"
-      );
+      document.querySelectorAll(".wheel-seg");
 
     const b1 =
       CONFIG.bonuses.first;
@@ -677,9 +574,7 @@
       value
     ) {
       const popupText =
-        document.querySelector(
-          selector
-        );
+        document.querySelector(selector);
 
       if (!popupText) {
         return;
@@ -714,32 +609,24 @@
 
     if (wheelSegs[2]) {
       wheelSegs[2]
-        .querySelector(
-          ".wheel-big-text"
-        )
+        .querySelector(".wheel-big-text")
         .textContent =
         b1.top;
 
       wheelSegs[2]
-        .querySelector(
-          ".wheel-small-text"
-        )
+        .querySelector(".wheel-small-text")
         .textContent =
         b1.bottom;
     }
 
     if (wheelSegs[6]) {
       wheelSegs[6]
-        .querySelector(
-          ".wheel-big-text"
-        )
+        .querySelector(".wheel-big-text")
         .textContent =
         b2.top;
 
       wheelSegs[6]
-        .querySelector(
-          ".wheel-small-text"
-        )
+        .querySelector(".wheel-small-text")
         .textContent =
         b2.bottom;
     }
@@ -775,9 +662,7 @@
     await document.fonts.ready;
 
     const startBtn =
-      document.querySelector(
-        ".start"
-      );
+      document.querySelector(".start");
 
     const texts =
       document.querySelectorAll(
@@ -808,40 +693,37 @@
           maxRatio: adjustCfc,
           minFontSize: 7,
           maxFontSizeRatio: 0.28,
-          maxFontSizeLimit: 32,
+          maxFontSizeLimit: 32
         }
       );
     });
 
-    popupButtons.forEach(
-      (el) => {
-        resetFontSize(el);
+    popupButtons.forEach((el) => {
+      resetFontSize(el);
 
-        adjustFontSizeToFit(
-          el,
-          0.2,
-          {
-            maxRatio: 0.62,
-            minFontSize: 7
-          }
-        );
-      }
-    );
+      adjustFontSizeToFit(
+        el,
+        0.2,
+        {
+          maxRatio: 0.62,
+          minFontSize: 7
+        }
+      );
+    });
   }
 
 
   function initTracking() {
-    const accountIds =
-      Array.from(
-        new Set(
-          CONFIG.trackingTargets
-            .map(
-              (sendTo) =>
-                sendTo.split("/")[0]
-            )
-            .filter(Boolean)
-        )
-      );
+    const accountIds = Array.from(
+      new Set(
+        CONFIG.trackingTargets
+          .map(
+            (sendTo) =>
+              sendTo.split("/")[0]
+          )
+          .filter(Boolean)
+      )
+    );
 
     if (!accountIds.length) {
       return;
@@ -854,12 +736,11 @@
       );
 
     const exists =
-      Array.from(
-        document.scripts
-      ).some(
-        (script) =>
-          script.src === src
-      );
+      Array.from(document.scripts)
+        .some(
+          (script) =>
+            script.src === src
+        );
 
     if (!exists) {
       const script =
@@ -913,7 +794,7 @@
             send_to: sendTo,
             transport_type:
               "beacon",
-            event_timeout: 500,
+            event_timeout: 500
           }
         );
       }
@@ -962,13 +843,6 @@
     outline: 0;
   }
 
-  aside,
-  footer,
-  header,
-  nav {
-    display: block;
-  }
-
   html {
     width: 100vw;
     height: 100vh;
@@ -983,6 +857,7 @@
   }
 
   html,
+  body,
   .body {
     font-family:
       Arial,
@@ -994,14 +869,37 @@
 
     color: #000;
 
-    -ms-text-size-adjust: 100%;
-    -moz-text-size-adjust: 100%;
     -webkit-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
   }
 
-  section {
+
+  /* =========================
+     ГЛАВНЫЙ КОНТЕЙНЕР
+     ========================= */
+
+  section.body {
+    width: 100vw;
     height: 100vh;
+    min-height: 100vh;
+
     position: relative;
+    z-index: 100;
+
+    display: flex !important;
+
+    /*
+     * ВАЖНО:
+     * колесо и текст идут сверху вниз,
+     * а не слева направо.
+     */
+    flex-direction: column !important;
+
+    align-items: center !important;
+    justify-content: center !important;
+
+    overflow: hidden;
 
     background-repeat:
       no-repeat !important;
@@ -1011,25 +909,15 @@
 
     background-size:
       cover !important;
-
-    z-index: 10;
   }
 
-  .body {
-    width: 100vw;
-    height: 100%;
-
-    position: relative;
-    z-index: 100;
-  }
 
   .embeded-body::after {
     content: "";
 
     position: absolute;
 
-    top: 0;
-    left: 0;
+    inset: 0;
 
     width: 100%;
     height: 100%;
@@ -1041,176 +929,12 @@
   }
 
 
-  @keyframes spinner {
-    0% {
-      transform:
-        rotate(-3deg);
-    }
-
-    50% {
-      transform:
-        rotate(3deg);
-    }
-
-    100% {
-      transform:
-        rotate(-3deg);
-    }
-  }
-
-
-  @keyframes antispinner {
-    0% {
-      transform:
-        rotate(3deg);
-    }
-
-    50% {
-      transform:
-        rotate(-3deg);
-    }
-
-    100% {
-      transform:
-        rotate(3deg);
-    }
-  }
-
-
-  .first-spin {
-    animation:
-      5s firstSpin ease;
-
-    animation-fill-mode:
-      forwards;
-  }
-
-
-  .second-spin {
-    animation:
-      5s secondSpin ease;
-
-    animation-fill-mode:
-      forwards;
-  }
-
-
-  @keyframes firstSpin {
-    from {
-      transform:
-        rotate(0deg);
-    }
-
-    to {
-      transform:
-        rotate(1350deg);
-    }
-  }
-
-
-  @keyframes secondSpin {
-    from {
-      transform:
-        rotate(1350deg);
-    }
-
-    to {
-      transform:
-        rotate(2970deg);
-    }
-  }
-
-
-  #banner .paragraph,
-  #banner p {
-    color:
-      unset !important;
-
-    font-family:
-      Arial,
-      Helvetica,
-      sans-serif;
-  }
-
-
-  .footer::after,
-  .header::after {
-    display: none;
-  }
-
-
-  #weebly-footer-signup-container-v3 {
-    visibility:
-      unset !important;
-
-    display:
-      none !important;
-
-    height:
-      unset !important;
-
-    position:
-      unset !important;
-
-    bottom:
-      0 !important;
-
-    left: 0;
-
-    right:
-      0 !important;
-
-    width:
-      100% !important;
-
-    z-index:
-      -1 !important;
-
-    opacity:
-      0 !important;
-  }
-
-
-  #panel-one {
-    height:
-      0 !important;
-  }
-
-
-  #panel-two {
-    height: 100vh;
-  }
-
-  #panel-two #banner {
-    height: 100%;
-  }
-
-
-  #wrapper {
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    flex-direction: column;
-  }
-
-
-  .container {
-    padding:
-      0 !important;
-  }
-
-
-  .embeded-body img {
-    background:
-      transparent !important;
-  }
-
+  /* =========================
+     HEADER / LOGO
+     ========================= */
 
   .embeded-body > header {
-    padding:
-      0 !important;
+    padding: 0 !important;
 
     background:
       transparent !important;
@@ -1226,21 +950,6 @@
   }
 
 
-  .cookie-banner,
-  .cookie-modal,
-  .cookie-consent,
-  [data-cookie-banner],
-  [data-cookie-modal],
-  [data-cookie-consent] {
-    display:
-      none !important;
-  }
-
-
-  /* ========================================
-     ЛОГОТИП
-     ======================================== */
-
   .logo {
     padding:
       20px 0 0 0;
@@ -1251,6 +960,7 @@
     height: 229.5px;
   }
 
+
   .logo img {
     width: 100%;
     height: 100%;
@@ -1259,9 +969,27 @@
   }
 
 
-  /* ========================================
-     ТЕКСТ НА КОЛЕСЕ
-     ======================================== */
+  /* =========================
+     MAIN / КОЛЕСО
+     ========================= */
+
+  .main {
+    position: relative;
+
+    z-index: 10;
+
+    display: flex !important;
+
+    align-items: center !important;
+    justify-content: center !important;
+
+    width: 100% !important;
+
+    height: auto;
+
+    flex: 0 0 auto !important;
+  }
+
 
   .wheel-text-wrapper {
     width: 100%;
@@ -1276,12 +1004,14 @@
     flex-direction: column;
   }
 
+
   .wheel-text-wrapper p {
     width: fit-content;
 
     text-transform:
       uppercase;
   }
+
 
   .wheel-text-wrapper p:not(:last-child) {
     margin-bottom: 6px;
@@ -1317,18 +1047,14 @@
 
     translate: -50% 0;
 
-    transform-origin:
-      bottom;
+    transform-origin: bottom;
 
     text-align: center;
 
     display: flex;
 
-    align-items:
-      flex-start;
-
-    justify-content:
-      center;
+    align-items: flex-start;
+    justify-content: center;
 
     left: 50%;
   }
@@ -1387,9 +1113,9 @@
   }
 
 
-  /* ========================================
-     РАМКА / УКАЗАТЕЛЬ
-     ======================================== */
+  /* =========================
+     FRAME
+     ========================= */
 
   .frame {
     position: absolute;
@@ -1404,6 +1130,7 @@
     height: 60%;
   }
 
+
   .frame img {
     width: 100%;
     height: 100%;
@@ -1412,9 +1139,80 @@
   }
 
 
-  /* ========================================
-     ПОПАПЫ
-     ======================================== */
+  /* =========================
+     OFFER ПОД КОЛЕСОМ
+     ========================= */
+
+  .offer {
+    flex: 0 0 auto !important;
+
+    align-self: center !important;
+
+    text-align: center !important;
+
+    position: relative !important;
+
+    z-index: 10;
+
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+
+  /*
+   * Крути и выигрывай!
+   */
+  .offer h1 {
+    font-family:
+      Georgia,
+      "Times New Roman",
+      Times,
+      serif !important;
+
+    font-weight:
+      400 !important;
+
+    font-style:
+      normal !important;
+
+    letter-spacing:
+      -1px !important;
+
+    line-height:
+      1.05 !important;
+
+    text-rendering:
+      geometricPrecision;
+  }
+
+
+  /*
+   * Ваши попытки: 2
+   */
+  .offer p,
+  .offer #counter {
+    font-family:
+      Arial,
+      Helvetica,
+      sans-serif !important;
+
+    font-weight:
+      400 !important;
+
+    font-style:
+      normal !important;
+
+    letter-spacing:
+      -0.45px !important;
+
+    line-height:
+      1.15 !important;
+  }
+
+
+  /* =========================
+     POPUP
+     ========================= */
 
   .popup {
     position: fixed;
@@ -1428,7 +1226,7 @@
     background:
       rgba(0, 0, 0, 0.4);
 
-    z-index: 10;
+    z-index: 1000;
 
     display: flex;
 
@@ -1447,8 +1245,7 @@
   .popup .popup-body {
     background:
       url("https://alphaclick.click/wheel/bg-modal.avif")
-      no-repeat
-      center / cover;
+      no-repeat center / cover;
 
     border:
       2px solid #fbd84d;
@@ -1464,8 +1261,7 @@
 
 
   /*
-   * ТОНКИЙ ЗАГОЛОВОК ПОПАПА
-   * как на предоставленном скрине
+   * Поздравляем!
    */
   .popup .popup-title {
     font-family:
@@ -1489,15 +1285,13 @@
 
 
   /*
-   * "ВАШ ВЫИГРЫШ: 120%"
-   * тонкий обычный шрифт
+   * Ваш выигрыш...
    */
   .popup .popup-text {
     color:
       #fff !important;
 
-    text-align:
-      center;
+    text-align: center;
 
     font-family:
       Arial,
@@ -1537,18 +1331,32 @@
 
 
   .popup .popup-text-value {
-    white-space:
-      pre-line;
+    white-space: pre-line;
   }
 
 
-  /*
-   * Кнопка по скрину остаётся более жирной
-   */
+  #second-popup .popup-text-prefix {
+    display: block;
+
+    margin-bottom:
+      10px;
+  }
+
+
+  #second-popup .popup-text-value {
+    display: block;
+  }
+
+
+  /* =========================
+     POPUP BUTTON
+     ========================= */
+
   .popup .popup-btn {
     width: 100%;
 
-    color: #612901;
+    color:
+      #612901 !important;
 
     border-bottom:
       4px solid #7e5205;
@@ -1576,9 +1384,6 @@
     font-weight:
       700 !important;
 
-    letter-spacing:
-      0 !important;
-
     line-height:
       1.05;
 
@@ -1588,115 +1393,90 @@
     text-transform:
       uppercase;
 
-    margin-left:
-      auto;
+    margin-left: auto;
+    margin-right: auto;
 
-    margin-right:
-      auto;
+    overflow: hidden;
 
-    overflow:
-      hidden;
+    position: relative;
 
-    position:
-      relative;
+    text-decoration: none;
 
-    text-decoration:
-      none;
-
-    text-align:
-      center;
-  }
-
-
-  #second-popup .popup-text-prefix {
-    display: block;
-
-    margin-bottom:
-      10px;
-  }
-
-
-  #second-popup .popup-text-value {
-    display: block;
+    text-align: center;
   }
 
 
   .active-popup {
     opacity: 1;
 
-    pointer-events:
-      all;
+    pointer-events: all;
   }
 
 
-  /* ========================================
-     ГЛАВНЫЙ ТЕКСТ:
-     "Крути и выигрывай!"
-     ======================================== */
+  /* =========================
+     ANIMATION
+     ========================= */
 
-  .offer h1 {
-    font-family:
-      Georgia,
-      "Times New Roman",
-      Times,
-      serif !important;
+  @keyframes spinner {
+    0% {
+      transform: rotate(-3deg);
+    }
 
-    font-weight:
-      400 !important;
+    50% {
+      transform: rotate(3deg);
+    }
 
-    font-style:
-      normal !important;
-
-    letter-spacing:
-      -1px !important;
-
-    line-height:
-      1.05 !important;
-
-    text-rendering:
-      geometricPrecision;
+    100% {
+      transform: rotate(-3deg);
+    }
   }
 
 
-  /*
-   * "Ваши попытки: 2"
-   */
-  .offer p,
-  .offer #counter {
-    font-family:
-      Arial,
-      Helvetica,
-      sans-serif !important;
+  @keyframes firstSpin {
+    from {
+      transform: rotate(0deg);
+    }
 
-    font-weight:
-      400 !important;
-
-    font-style:
-      normal !important;
-
-    letter-spacing:
-      -0.45px !important;
-
-    line-height:
-      1.15 !important;
+    to {
+      transform: rotate(1350deg);
+    }
   }
 
 
-  .offer #counter {
-    font-weight:
-      400 !important;
+  @keyframes secondSpin {
+    from {
+      transform: rotate(1350deg);
+    }
+
+    to {
+      transform: rotate(2970deg);
+    }
   }
 
-
-  /* ========================================
-     АНИМАЦИЯ
-     ======================================== */
 
   .animate {
     animation:
       2s spinner
       ease-in-out
       infinite;
+  }
+
+
+  .first-spin {
+    animation:
+      5s firstSpin ease;
+
+    animation-fill-mode:
+      forwards;
+  }
+
+
+  .second-spin {
+    animation:
+      5s secondSpin ease;
+
+    animation-fill-mode:
+      forwards;
   }
 
 
@@ -1726,17 +1506,78 @@
   }
 
 
+  /* =========================
+     PLATFORM CLEANUP
+     ========================= */
+
+  #weebly-footer-signup-container-v3 {
+    display:
+      none !important;
+
+    opacity:
+      0 !important;
+  }
+
+
+  #panel-one {
+    height:
+      0 !important;
+  }
+
+
+  #panel-two {
+    height: 100vh;
+  }
+
+
+  #panel-two #banner {
+    height: 100%;
+  }
+
+
+  .container {
+    padding:
+      0 !important;
+  }
+
+
+  .embeded-body img {
+    background:
+      transparent !important;
+  }
+
+
+  .cookie-banner,
+  .cookie-modal,
+  .cookie-consent,
+  [data-cookie-banner],
+  [data-cookie-modal],
+  [data-cookie-consent] {
+    display:
+      none !important;
+  }
+
+
   .powered-by-badge {
     display:
       none !important;
   }
 
 
-  /* ========================================
+  /* =========================
      MOBILE
-     ======================================== */
+     ========================= */
 
   @media (max-width: 767px) {
+
+    section.body {
+      display: flex !important;
+      flex-direction: column !important;
+
+      align-items: center !important;
+      justify-content: center !important;
+    }
+
 
     .body > header {
       position:
@@ -1753,6 +1594,72 @@
     .logo {
       transform:
         translateY(-30px) !important;
+    }
+
+
+    .main {
+      width:
+        100% !important;
+
+      top:
+        -2vh !important;
+
+      transform:
+        none !important;
+
+      flex:
+        0 0 auto !important;
+    }
+
+
+    .wheel {
+      --wheel-size:
+        100%;
+
+      top:
+        30px !important;
+
+      flex-shrink:
+        0 !important;
+
+      max-width:
+        none !important;
+    }
+
+
+    /*
+     * Offer остаётся строго под wheel
+     */
+    .offer {
+      position:
+        relative !important;
+
+      left:
+        auto !important;
+
+      right:
+        auto !important;
+
+      top:
+        auto !important;
+
+      bottom:
+        auto !important;
+
+      transform:
+        none !important;
+
+      align-self:
+        center !important;
+
+      margin-left:
+        auto !important;
+
+      margin-right:
+        auto !important;
+
+      flex:
+        0 0 auto !important;
     }
 
 
@@ -1796,15 +1703,10 @@
         50dvh !important;
 
       width:
-        min(
-          90vw,
-          600px
-        ) !important;
+        min(90vw, 600px) !important;
 
       max-height:
-        calc(
-          100dvh - 32px
-        );
+        calc(100dvh - 32px);
 
       margin:
         0 !important;
@@ -1813,65 +1715,7 @@
         auto;
 
       transform:
-        translate(
-          -50%,
-          -50%
-        ) !important;
-    }
-
-
-    .main {
-      top:
-        -2vh !important;
-
-      transform:
-        none !important;
-    }
-
-
-    .wheel {
-      --wheel-size:
-        100%;
-
-      top:
-        30px !important;
-
-      flex-shrink:
-        0 !important;
-
-      max-width:
-        none !important;
-    }
-
-
-    /*
-     * На мобильном чуть ближе
-     * к размеру шрифта со скрина.
-     */
-    .offer h1 {
-      font-weight:
-        400 !important;
-    }
-
-
-    .offer p,
-    .offer #counter {
-      font-weight:
-        400 !important;
-    }
-
-
-    .popup .popup-title {
-      font-weight:
-        400 !important;
-    }
-
-
-    .popup .popup-text,
-    .popup .popup-text-prefix,
-    .popup .popup-text-value {
-      font-weight:
-        400 !important;
+        translate(-50%, -50%) !important;
     }
   }
 
@@ -1891,6 +1735,7 @@
     width: 100%;
     height: 100%;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     overflow: hidden;
@@ -1911,10 +1756,12 @@
   >
 
     <div class="logo">
+
       <img
         src="https://alphaclick.click/system/loader.svg"
         alt="logo"
       />
+
     </div>
 
   </header>
@@ -1930,6 +1777,7 @@
       justify-content: center;
       width: 100%;
       height: auto;
+      flex: 0 0 auto;
     "
   >
 
@@ -1940,12 +1788,17 @@
         min-width: var(--wheel-size, 0);
         flex: 0 0 var(--wheel-size, auto);
         height: auto;
+
         background:
           url('https://alphaclick.click/wheel/steel-wheel-holder.avif')
           no-repeat top left / contain;
+
         aspect-ratio: 1 / 1;
+
         position: relative;
+
         display: flex;
+
         align-items: center;
         justify-content: center;
       "
@@ -1955,10 +1808,14 @@
         class="wheel-body animate"
         style="
           position: relative;
+
           background: black;
+
           width: 75%;
           height: 75%;
+
           border-radius: 50%;
+
           overflow: hidden;
         "
       >
@@ -2145,7 +2002,9 @@
         class="start"
         style="
           position: absolute;
+
           margin: auto;
+
           top: 0;
           bottom: 0;
           right: 0;
@@ -2176,12 +2035,14 @@
         <p
           style="
             width: fit-content;
+
             padding: 0;
             margin: 0;
+
             color: #612901;
           "
         >
-          Drehen
+          Крутить
         </p>
 
       </button>
@@ -2201,9 +2062,7 @@
   </div>
 
 
-  <!-- ======================================
-       ВЕРХНИЙ ТЕКСТ
-       ====================================== -->
+  <!-- БЛОК СНОВА СТРОГО ПОД КОЛЕСОМ -->
 
   <div
     class="offer"
@@ -2218,15 +2077,33 @@
       position: relative;
 
       z-index: 10;
+
+      flex: 0 0 auto;
+
+      align-self: center;
+
+      margin-left: auto;
+      margin-right: auto;
     "
   >
 
     <h1
       style="
         color: #fbd84d !important;
+
         text-align: center;
-        margin: 0 0 10px 0;
+
+        margin:
+          0 0 10px 0;
+
         font-size: 30px;
+
+        font-family:
+          Georgia,
+          'Times New Roman',
+          serif;
+
+        font-weight: 400;
       "
     >
       Крути и выигрывай!
@@ -2236,8 +2113,17 @@
     <p
       style="
         color: #fff !important;
+
         text-align: center;
+
         font-size: 22px;
+
+        font-family:
+          Arial,
+          Helvetica,
+          sans-serif;
+
+        font-weight: 400;
       "
     >
       Ваши попытки:
@@ -2247,9 +2133,7 @@
   </div>
 
 
-  <!-- ======================================
-       ПЕРВЫЙ ПОПАП
-       ====================================== -->
+  <!-- FIRST POPUP -->
 
   <div
     id="first-popup"
@@ -2262,9 +2146,20 @@
         class="popup-title"
         style="
           color: #fbd84d !important;
+
           text-align: center;
+
           font-size: 30px;
-          margin: 0 0 20px 0;
+
+          margin:
+            0 0 20px 0;
+
+          font-family:
+            Georgia,
+            'Times New Roman',
+            serif;
+
+          font-weight: 400;
         "
       >
         Поздравляем!
@@ -2299,9 +2194,7 @@
   </div>
 
 
-  <!-- ======================================
-       ВТОРОЙ ПОПАП
-       ====================================== -->
+  <!-- SECOND POPUP -->
 
   <div
     id="second-popup"
@@ -2314,9 +2207,20 @@
         class="popup-title"
         style="
           color: #fbd84d !important;
+
           text-align: center;
+
           font-size: 30px;
-          margin: 0 0 20px 0;
+
+          margin:
+            0 0 20px 0;
+
+          font-family:
+            Georgia,
+            'Times New Roman',
+            serif;
+
+          font-weight: 400;
         "
       >
         Поздравляем!
@@ -2454,16 +2358,14 @@
             popupValue:
               valueNode
                 ? valueNode.textContent
-                : "",
+                : ""
           })
         );
       } catch (e) {}
     }
 
 
-    function applySavedPopupText(
-      state
-    ) {
+    function applySavedPopupText(state) {
       const prefixNode =
         secondPopup.querySelector(
           ".popup-text-prefix"
@@ -2473,7 +2375,6 @@
         secondPopup.querySelector(
           ".popup-text-value"
         );
-
 
       if (
         prefixNode &&
@@ -2486,7 +2387,6 @@
         prefixNode.hidden =
           !state.popupPrefix;
       }
-
 
       if (
         valueNode &&
@@ -2533,9 +2433,7 @@
         counter.innerHTML = "0";
       }
 
-      fitTexts().catch(
-        () => {}
-      );
+      fitTexts().catch(() => {});
     }
 
 
@@ -2706,14 +2604,3 @@
 
 
 
-
-.main {
-  width: 100% !important;
-  flex: 0 0 auto !important;
-}
-
-.offer {
-  flex: 0 0 auto !important;
-  align-self: center !important;
-  text-align: center !important;
-}
