@@ -1,8 +1,10 @@
 <title>Pin-Up</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <script>
   const cut = 1;
   const adjustCfc = 0.42;
+
   const CONFIG = (() => {
     const params = new URLSearchParams(window.location.search);
 
@@ -28,8 +30,13 @@
 
     function getParam(name, fallback = "") {
       const value = params.get(name);
-      if (value === null) return fallback;
+
+      if (value === null) {
+        return fallback;
+      }
+
       const trimmed = value.trim();
+
       return trimmed === "" ? fallback : trimmed;
     }
 
@@ -49,7 +56,11 @@
         .filter((value) => value && value !== "#");
     }
 
-    function splitBonusParam(raw, fallbackLeft = "", fallbackRight = "") {
+    function splitBonusParam(
+      raw,
+      fallbackLeft = "",
+      fallbackRight = ""
+    ) {
       if (!raw || !raw.trim()) {
         return {
           top: fallbackLeft,
@@ -67,7 +78,10 @@
     }
 
     function getBonusFallbackParts(raw) {
-      const normalized = raw.trim().split(/\s+/).filter(Boolean);
+      const normalized = raw
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
 
       return {
         top: normalized[0] ?? "",
@@ -77,8 +91,14 @@
 
     function buildOfferUrl(baseUrl) {
       let result = baseUrl + "?&";
-      result += "se_referrer=" + encodeURIComponent(document.referrer);
-      result += "&default_keyword=" + encodeURIComponent(document.title);
+
+      result +=
+        "se_referrer=" +
+        encodeURIComponent(document.referrer);
+
+      result +=
+        "&default_keyword=" +
+        encodeURIComponent(document.title);
 
       for (const [key, value] of params.entries()) {
         if (LANDING_CONFIG_PARAMS.has(key)) {
@@ -86,82 +106,161 @@
         }
 
         result +=
-          "&" + encodeURIComponent(key) + "=" + encodeURIComponent(value);
+          "&" +
+          encodeURIComponent(key) +
+          "=" +
+          encodeURIComponent(value);
       }
 
       return result;
     }
 
-    const lang = getParam("lang", DEFAULTS.lang);
-    const brand = getParam("brand", DEFAULTS.brand);
-    const offerBase = getParam("offer", DEFAULTS.offerBase);
-    const sendTo = getTrackingParam(DEFAULTS.sendTo);
-    const trackingTargets = parseTrackingTargets(sendTo);
+    const lang = getParam(
+      "lang",
+      DEFAULTS.lang
+    );
 
-    const bonus1Raw = getParam("b1", DEFAULTS.b1);
-    const bonus2Raw = getParam("b2", DEFAULTS.b2);
+    const brand = getParam(
+      "brand",
+      DEFAULTS.brand
+    );
 
-    const defaultBonus1 = getBonusFallbackParts(DEFAULTS.b1);
-    const defaultBonus2 = getBonusFallbackParts(DEFAULTS.b2);
+    const offerBase = getParam(
+      "offer",
+      DEFAULTS.offerBase
+    );
+
+    const sendTo = getTrackingParam(
+      DEFAULTS.sendTo
+    );
+
+    const trackingTargets =
+      parseTrackingTargets(sendTo);
+
+    const bonus1Raw = getParam(
+      "b1",
+      DEFAULTS.b1
+    );
+
+    const bonus2Raw = getParam(
+      "b2",
+      DEFAULTS.b2
+    );
+
+    const defaultBonus1 =
+      getBonusFallbackParts(DEFAULTS.b1);
+
+    const defaultBonus2 =
+      getBonusFallbackParts(DEFAULTS.b2);
 
     const bonus1 = splitBonusParam(
       bonus1Raw,
       defaultBonus1.top,
-      defaultBonus1.bottom,
+      defaultBonus1.bottom
     );
+
     const bonus2 = splitBonusParam(
       bonus2Raw,
       defaultBonus2.top,
-      defaultBonus2.bottom,
+      defaultBonus2.bottom
     );
 
     return {
       params,
       defaults: DEFAULTS,
       landingConfigParams: LANDING_CONFIG_PARAMS,
+
       lang,
       brand,
       offerBase,
       offerURI: buildOfferUrl(offerBase),
+
       sendTo,
       trackingTargets,
+
       i18nUrl: DEFAULTS.i18nUrl,
+
       bonuses: {
         first: bonus1,
         second: bonus2,
       },
+
       assets: {
         bg: `https://alphaclick.click/brands/${brand}/bg.avif`,
-        bgFallback: "https://alphaclick.click/brands/default/bg.avif",
-        logo: `https://alphaclick.click/brands/${brand}/logo.svg`,
-        holder: "https://alphaclick.click/wheel/steel-wheel-holder.avif",
-        trigger: "https://alphaclick.click/wheel/trigger.avif",
-        frame: "https://alphaclick.click/wheel/wheel-win-frame.avif",
-        modalBg: "https://alphaclick.click/wheel/bg-modal.avif",
-        mask: "https://alphaclick.click/wheel/wheel-mask.avif",
+        bgFallback:
+          "https://alphaclick.click/brands/default/bg.avif",
+
+        logo:
+          `https://alphaclick.click/brands/${brand}/logo.svg`,
+
+        holder:
+          "https://alphaclick.click/wheel/steel-wheel-holder.avif",
+
+        trigger:
+          "https://alphaclick.click/wheel/trigger.avif",
+
+        frame:
+          "https://alphaclick.click/wheel/wheel-win-frame.avif",
+
+        modalBg:
+          "https://alphaclick.click/wheel/bg-modal.avif",
+
+        mask:
+          "https://alphaclick.click/wheel/wheel-mask.avif",
       },
     };
   })();
 
+
   async function loadI18n() {
-    const res = await fetch(CONFIG.i18nUrl, { cache: "force-cache" });
+    const res = await fetch(
+      CONFIG.i18nUrl,
+      {
+        cache: "force-cache"
+      }
+    );
+
     const allMessages = await res.json();
-    return allMessages[CONFIG.lang] || allMessages.en || allMessages.de;
+
+    return (
+      allMessages[CONFIG.lang] ||
+      allMessages.en ||
+      allMessages.de
+    );
   }
 
+
   function getTextFitTargets(element) {
-    const paragraphs = Array.from(element.querySelectorAll("p"));
-    if (paragraphs.length) return paragraphs;
+    const paragraphs =
+      Array.from(
+        element.querySelectorAll("p")
+      );
 
-    let fitTarget = element.querySelector(":scope > .fit-text");
+    if (paragraphs.length) {
+      return paragraphs;
+    }
+
+    let fitTarget =
+      element.querySelector(
+        ":scope > .fit-text"
+      );
+
     if (!fitTarget) {
-      const text = element.textContent.trim();
-      if (!text) return [];
+      const text =
+        element.textContent.trim();
 
-      fitTarget = document.createElement("span");
+      if (!text) {
+        return [];
+      }
+
+      fitTarget =
+        document.createElement("span");
+
       fitTarget.className = "fit-text";
       fitTarget.textContent = text;
-      fitTarget.style.display = "inline-block";
+
+      fitTarget.style.display =
+        "inline-block";
 
       element.textContent = "";
       element.appendChild(fitTarget);
@@ -170,8 +269,11 @@
     return [fitTarget];
   }
 
+
   function resetFontSize(element) {
-    const targets = getTextFitTargets(element);
+    const targets =
+      getTextFitTargets(element);
+
     targets.forEach((target) => {
       target.style.fontSize = "";
       target.style.transform = "";
@@ -179,244 +281,567 @@
     });
   }
 
+
   function getMeasuredTextWidth(element) {
-    return element.scrollWidth || element.offsetWidth;
+    return (
+      element.scrollWidth ||
+      element.offsetWidth
+    );
   }
 
-  function adjustFontSizeToFit(element, c, options = {}) {
-    const targets = getTextFitTargets(element);
-    const baseWidth = element.offsetWidth;
-    const desiredWidth = baseWidth * c;
-    const maxRatio = options.maxRatio ?? (c < 0.5 ? 0.62 : c);
-    const maxWidth = baseWidth * maxRatio;
-    const minFontSize = options.minFontSize ?? 6;
+
+  function adjustFontSizeToFit(
+    element,
+    c,
+    options = {}
+  ) {
+    const targets =
+      getTextFitTargets(element);
+
+    const baseWidth =
+      element.offsetWidth;
+
+    const desiredWidth =
+      baseWidth * c;
+
+    const maxRatio =
+      options.maxRatio ??
+      (c < 0.5 ? 0.62 : c);
+
+    const maxWidth =
+      baseWidth * maxRatio;
+
+    const minFontSize =
+      options.minFontSize ?? 6;
+
     const rawMaxFontSize =
       options.maxFontSize ??
-      (options.maxFontSizeRatio ? baseWidth * options.maxFontSizeRatio : 100);
-    const maxFontSizeLimit = options.maxFontSizeLimit ?? rawMaxFontSize;
+      (
+        options.maxFontSizeRatio
+          ? baseWidth *
+            options.maxFontSizeRatio
+          : 100
+      );
+
+    const maxFontSizeLimit =
+      options.maxFontSizeLimit ??
+      rawMaxFontSize;
+
     const maxFontSize = Math.max(
       minFontSize,
-      Math.min(rawMaxFontSize, maxFontSizeLimit),
+      Math.min(
+        rawMaxFontSize,
+        maxFontSizeLimit
+      )
     );
-    const step = options.step ?? 0.5;
 
-    if (!baseWidth || !desiredWidth || !maxWidth) return;
+    const step =
+      options.step ?? 0.5;
+
+    if (
+      !baseWidth ||
+      !desiredWidth ||
+      !maxWidth
+    ) {
+      return;
+    }
 
     targets.forEach((target) => {
-      let fontSize = parseFloat(window.getComputedStyle(target).fontSize);
-      if (!fontSize) return;
+      let fontSize =
+        parseFloat(
+          window
+            .getComputedStyle(target)
+            .fontSize
+        );
 
-      target.style.whiteSpace = "nowrap";
+      if (!fontSize) {
+        return;
+      }
+
+      target.style.whiteSpace =
+        "nowrap";
+
       if (fontSize > maxFontSize) {
         fontSize = maxFontSize;
-        target.style.fontSize = `${fontSize}px`;
+
+        target.style.fontSize =
+          `${fontSize}px`;
       }
 
-      while (getMeasuredTextWidth(target) < desiredWidth && fontSize < maxFontSize) {
-        fontSize = Math.min(maxFontSize, fontSize + step);
-        target.style.fontSize = `${fontSize}px`;
+      while (
+        getMeasuredTextWidth(target) <
+          desiredWidth &&
+        fontSize < maxFontSize
+      ) {
+        fontSize = Math.min(
+          maxFontSize,
+          fontSize + step
+        );
+
+        target.style.fontSize =
+          `${fontSize}px`;
       }
 
-      while (getMeasuredTextWidth(target) > maxWidth && fontSize > minFontSize) {
-        fontSize = Math.max(minFontSize, fontSize - step);
-        target.style.fontSize = `${fontSize}px`;
+      while (
+        getMeasuredTextWidth(target) >
+          maxWidth &&
+        fontSize > minFontSize
+      ) {
+        fontSize = Math.max(
+          minFontSize,
+          fontSize - step
+        );
+
+        target.style.fontSize =
+          `${fontSize}px`;
       }
 
-      const measuredWidth = getMeasuredTextWidth(target);
+      const measuredWidth =
+        getMeasuredTextWidth(target);
+
       if (measuredWidth > maxWidth) {
-        target.style.transformOrigin = "center center";
-        target.style.transform = `scaleX(${maxWidth / measuredWidth})`;
+        target.style.transformOrigin =
+          "center center";
+
+        target.style.transform =
+          `scaleX(${maxWidth / measuredWidth})`;
       }
     });
   }
+
 
   function preloadImage(url) {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.onload = () => resolve(url);
-      img.onerror = () => reject(new Error(`Failed to load image: ${url}`));
-      img.src = url;
-    });
+    return new Promise(
+      (resolve, reject) => {
+        const img = new Image();
+
+        img.onload =
+          () => resolve(url);
+
+        img.onerror =
+          () => reject(
+            new Error(
+              `Failed to load image: ${url}`
+            )
+          );
+
+        img.src = url;
+      }
+    );
   }
+
 
   async function resolveBackgroundUrl() {
     try {
-      await preloadImage(CONFIG.assets.bg);
+      await preloadImage(
+        CONFIG.assets.bg
+      );
+
       return CONFIG.assets.bg;
     } catch (error) {
       return CONFIG.assets.bgFallback;
     }
   }
 
+
   async function applyAssets() {
-    const section = document.querySelector("section.body");
-    const logo = document.querySelector(".logo img");
-    const wheel = document.querySelector(".wheel");
-    const start = document.querySelector(".start");
-    const frameImg = document.querySelector(".frame img");
+    const section =
+      document.querySelector(
+        "section.body"
+      );
+
+    const logo =
+      document.querySelector(
+        ".logo img"
+      );
+
+    const wheel =
+      document.querySelector(
+        ".wheel"
+      );
+
+    const start =
+      document.querySelector(
+        ".start"
+      );
+
+    const frameImg =
+      document.querySelector(
+        ".frame img"
+      );
 
     if (section) {
-      const bgUrl = await resolveBackgroundUrl();
-      section.style.background = `url("${bgUrl}") no-repeat top left / cover`;
+      const bgUrl =
+        await resolveBackgroundUrl();
+
+      section.style.background =
+        `url("${bgUrl}") no-repeat top left / cover`;
     }
 
     if (logo) {
-      logo.src = CONFIG.assets.logo;
+      logo.src =
+        CONFIG.assets.logo;
     }
 
     if (wheel) {
-      wheel.style.background = `url("${CONFIG.assets.holder}") no-repeat top left / contain`;
+      wheel.style.background =
+        `url("${CONFIG.assets.holder}") no-repeat top left / contain`;
     }
 
     if (start) {
-      start.style.background = `url("${CONFIG.assets.trigger}") no-repeat center / contain`;
+      start.style.background =
+        `url("${CONFIG.assets.trigger}") no-repeat center / contain`;
     }
 
     if (frameImg) {
-      frameImg.src = CONFIG.assets.frame;
+      frameImg.src =
+        CONFIG.assets.frame;
     }
 
-    document.querySelectorAll(".popup-body").forEach((el) => {
-      el.style.background = `url("${CONFIG.assets.modalBg}") no-repeat center / cover`;
-    });
+    document
+      .querySelectorAll(".popup-body")
+      .forEach((el) => {
+        el.style.background =
+          `url("${CONFIG.assets.modalBg}") no-repeat center / cover`;
+      });
 
-    document.documentElement.style.setProperty(
-      "--wheel-mask-url",
-      `url("${CONFIG.assets.mask}")`,
-    );
+    document.documentElement
+      .style.setProperty(
+        "--wheel-mask-url",
+        `url("${CONFIG.assets.mask}")`
+      );
   }
+
 
   function applyI18n(t) {
-    const wheelSegs = document.querySelectorAll(".wheel-seg");
-    const startBtnText = document.querySelector(".start p");
-    const offerTitle = document.querySelector(".offer h1");
-    const offerText = document.querySelector(".offer p");
-    const firstPopupTitle = document.querySelector("#first-popup .popup-title");
-    const secondPopupTitle = document.querySelector(
-      "#second-popup .popup-title",
-    );
-    const retryBtn = document.querySelector("#secsp");
-    const claimBtn = document.querySelector(
-      "#d25c38c9-c12e-670a-4afb-5b9f8d6045ee",
-    );
+    const wheelSegs =
+      document.querySelectorAll(
+        ".wheel-seg"
+      );
 
-    if (startBtnText) startBtnText.textContent = t.spin_button;
-    if (wheelSegs[0])
-      wheelSegs[0].querySelector(".wheel-small-text").textContent =
-        t.wheel_plus_spins;
-    if (wheelSegs[1])
-      wheelSegs[1].querySelector(".wheel-empty-text").textContent =
-        t.wheel_retry;
-    if (wheelSegs[3])
-      wheelSegs[3].querySelector(".wheel-empty-text").textContent =
-        t.wheel_empty;
-    if (wheelSegs[4])
-      wheelSegs[4].querySelector(".wheel-small-text").textContent =
-        t.wheel_plus_spins;
-    if (wheelSegs[5])
-      wheelSegs[5].querySelector(".wheel-empty-text").textContent =
-        t.wheel_retry;
-    if (wheelSegs[7])
-      wheelSegs[7].querySelector(".wheel-empty-text").textContent =
-        t.wheel_empty;
+    const startBtnText =
+      document.querySelector(
+        ".start p"
+      );
 
-    if (offerTitle) offerTitle.textContent = t.main_title;
-    if (offerText) {
-      offerText.innerHTML = `${t.attempts_label} <span id="counter">2</span>`;
+    const offerTitle =
+      document.querySelector(
+        ".offer h1"
+      );
+
+    const offerText =
+      document.querySelector(
+        ".offer p"
+      );
+
+    const firstPopupTitle =
+      document.querySelector(
+        "#first-popup .popup-title"
+      );
+
+    const secondPopupTitle =
+      document.querySelector(
+        "#second-popup .popup-title"
+      );
+
+    const retryBtn =
+      document.querySelector(
+        "#secsp"
+      );
+
+    const claimBtn =
+      document.querySelector(
+        "#d25c38c9-c12e-670a-4afb-5b9f8d6045ee"
+      );
+
+    if (startBtnText) {
+      startBtnText.textContent =
+        t.spin_button;
     }
 
-    if (firstPopupTitle) firstPopupTitle.textContent = t.popup_title;
-    if (secondPopupTitle) secondPopupTitle.textContent = t.popup_title;
-    if (retryBtn) retryBtn.textContent = t.popup_retry_button;
-    if (claimBtn) claimBtn.textContent = t.popup_claim_button;
+    if (wheelSegs[0]) {
+      wheelSegs[0]
+        .querySelector(
+          ".wheel-small-text"
+        )
+        .textContent =
+        t.wheel_plus_spins;
+    }
 
-    document.title = t.meta_title || document.title;
+    if (wheelSegs[1]) {
+      wheelSegs[1]
+        .querySelector(
+          ".wheel-empty-text"
+        )
+        .textContent =
+        t.wheel_retry;
+    }
+
+    if (wheelSegs[3]) {
+      wheelSegs[3]
+        .querySelector(
+          ".wheel-empty-text"
+        )
+        .textContent =
+        t.wheel_empty;
+    }
+
+    if (wheelSegs[4]) {
+      wheelSegs[4]
+        .querySelector(
+          ".wheel-small-text"
+        )
+        .textContent =
+        t.wheel_plus_spins;
+    }
+
+    if (wheelSegs[5]) {
+      wheelSegs[5]
+        .querySelector(
+          ".wheel-empty-text"
+        )
+        .textContent =
+        t.wheel_retry;
+    }
+
+    if (wheelSegs[7]) {
+      wheelSegs[7]
+        .querySelector(
+          ".wheel-empty-text"
+        )
+        .textContent =
+        t.wheel_empty;
+    }
+
+    if (offerTitle) {
+      offerTitle.textContent =
+        t.main_title;
+    }
+
+    if (offerText) {
+      offerText.innerHTML =
+        `${t.attempts_label} <span id="counter">2</span>`;
+    }
+
+    if (firstPopupTitle) {
+      firstPopupTitle.textContent =
+        t.popup_title;
+    }
+
+    if (secondPopupTitle) {
+      secondPopupTitle.textContent =
+        t.popup_title;
+    }
+
+    if (retryBtn) {
+      retryBtn.textContent =
+        t.popup_retry_button;
+    }
+
+    if (claimBtn) {
+      claimBtn.textContent =
+        t.popup_claim_button;
+    }
+
+    document.title =
+      t.meta_title ||
+      document.title;
   }
 
+
   function applyBonuses(t) {
-    const wheelSegs = document.querySelectorAll(".wheel-seg");
-    const b1 = CONFIG.bonuses.first;
-    const b2 = CONFIG.bonuses.second;
-    const bonus1Text = [b1.top, b1.bottom].filter(Boolean).join(" ");
-    const bonus2Text = [b2.top, b2.bottom].filter(Boolean).join(" ");
+    const wheelSegs =
+      document.querySelectorAll(
+        ".wheel-seg"
+      );
 
-    function setPopupText(selector, prefix, value) {
-      const popupText = document.querySelector(selector);
-      if (!popupText) return;
+    const b1 =
+      CONFIG.bonuses.first;
 
-      const prefixNode = popupText.querySelector(".popup-text-prefix");
-      const valueNode = popupText.querySelector(".popup-text-value");
+    const b2 =
+      CONFIG.bonuses.second;
+
+    const bonus1Text =
+      [b1.top, b1.bottom]
+        .filter(Boolean)
+        .join(" ");
+
+    const bonus2Text =
+      [b2.top, b2.bottom]
+        .filter(Boolean)
+        .join(" ");
+
+    function setPopupText(
+      selector,
+      prefix,
+      value
+    ) {
+      const popupText =
+        document.querySelector(
+          selector
+        );
+
+      if (!popupText) {
+        return;
+      }
+
+      const prefixNode =
+        popupText.querySelector(
+          ".popup-text-prefix"
+        );
+
+      const valueNode =
+        popupText.querySelector(
+          ".popup-text-value"
+        );
 
       if (prefixNode) {
-        prefixNode.textContent = prefix;
-        prefixNode.hidden = !prefix;
+        prefixNode.textContent =
+          prefix;
+
+        prefixNode.hidden =
+          !prefix;
       }
 
       if (valueNode) {
-        valueNode.textContent = value;
-        valueNode.hidden = !value;
+        valueNode.textContent =
+          value;
+
+        valueNode.hidden =
+          !value;
       }
     }
 
     if (wheelSegs[2]) {
-      wheelSegs[2].querySelector(".wheel-big-text").textContent = b1.top;
-      wheelSegs[2].querySelector(".wheel-small-text").textContent = b1.bottom;
+      wheelSegs[2]
+        .querySelector(
+          ".wheel-big-text"
+        )
+        .textContent =
+        b1.top;
+
+      wheelSegs[2]
+        .querySelector(
+          ".wheel-small-text"
+        )
+        .textContent =
+        b1.bottom;
     }
 
     if (wheelSegs[6]) {
-      wheelSegs[6].querySelector(".wheel-big-text").textContent = b2.top;
-      wheelSegs[6].querySelector(".wheel-small-text").textContent = b2.bottom;
+      wheelSegs[6]
+        .querySelector(
+          ".wheel-big-text"
+        )
+        .textContent =
+        b2.top;
+
+      wheelSegs[6]
+        .querySelector(
+          ".wheel-small-text"
+        )
+        .textContent =
+        b2.bottom;
     }
 
-    const cutedBonus = bonus1Text.split(" ").slice(cut).join(" ");
+    const cutedBonus =
+      bonus1Text
+        .split(" ")
+        .slice(cut)
+        .join(" ");
+
     setPopupText(
       "#first-popup .popup-text",
       t.popup_win_prefix + " ",
-      cutedBonus,
+      cutedBonus
     );
+
     setPopupText(
       "#second-popup .popup-text",
-      [t.popup_win_prefix, cutedBonus].filter(Boolean).join(" "),
-      bonus2Text ? `+ ${bonus2Text}` : "",
+      [
+        t.popup_win_prefix,
+        cutedBonus
+      ]
+        .filter(Boolean)
+        .join(" "),
+      bonus2Text
+        ? `+ ${bonus2Text}`
+        : ""
     );
   }
+
 
   async function fitTexts() {
     await document.fonts.ready;
 
-    const startBtn = document.querySelector(".start");
-    const texts = document.querySelectorAll(".wheel-text-wrapper.adopt");
-    const popupButtons = document.querySelectorAll(".popup-btn.adopt");
+    const startBtn =
+      document.querySelector(
+        ".start"
+      );
+
+    const texts =
+      document.querySelectorAll(
+        ".wheel-text-wrapper.adopt"
+      );
+
+    const popupButtons =
+      document.querySelectorAll(
+        ".popup-btn.adopt"
+      );
 
     if (startBtn) {
       resetFontSize(startBtn);
-      adjustFontSizeToFit(startBtn, 0.7);
+
+      adjustFontSizeToFit(
+        startBtn,
+        0.7
+      );
     }
 
     texts.forEach((el) => {
       resetFontSize(el);
-      adjustFontSizeToFit(el, adjustCfc, {
-        maxRatio: adjustCfc,
-        minFontSize: 7,
-        maxFontSizeRatio: 0.28,
-        maxFontSizeLimit: 32,
-      });
+
+      adjustFontSizeToFit(
+        el,
+        adjustCfc,
+        {
+          maxRatio: adjustCfc,
+          minFontSize: 7,
+          maxFontSizeRatio: 0.28,
+          maxFontSizeLimit: 32,
+        }
+      );
     });
 
-    popupButtons.forEach((el) => {
-      resetFontSize(el);
-      adjustFontSizeToFit(el, 0.2, { maxRatio: 0.62, minFontSize: 7 });
-    });
+    popupButtons.forEach(
+      (el) => {
+        resetFontSize(el);
+
+        adjustFontSizeToFit(
+          el,
+          0.2,
+          {
+            maxRatio: 0.62,
+            minFontSize: 7
+          }
+        );
+      }
+    );
   }
 
+
   function initTracking() {
-    const accountIds = Array.from(
-      new Set(
-        CONFIG.trackingTargets
-          .map((sendTo) => sendTo.split("/")[0])
-          .filter(Boolean),
-      ),
-    );
+    const accountIds =
+      Array.from(
+        new Set(
+          CONFIG.trackingTargets
+            .map(
+              (sendTo) =>
+                sendTo.split("/")[0]
+            )
+            .filter(Boolean)
+        )
+      );
 
     if (!accountIds.length) {
       return;
@@ -424,18 +849,36 @@
 
     const src =
       "https://www.googletagmanager.com/gtag/js?id=" +
-      encodeURIComponent(accountIds[0]);
-    const exists = Array.from(document.scripts).some(
-      (script) => script.src === src,
-    );
+      encodeURIComponent(
+        accountIds[0]
+      );
+
+    const exists =
+      Array.from(
+        document.scripts
+      ).some(
+        (script) =>
+          script.src === src
+      );
+
     if (!exists) {
-      const script = document.createElement("script");
+      const script =
+        document.createElement(
+          "script"
+        );
+
       script.async = true;
       script.src = src;
-      (document.head || document.documentElement).appendChild(script);
+
+      (
+        document.head ||
+        document.documentElement
+      ).appendChild(script);
     }
 
-    window.dataLayer = window.dataLayer || [];
+    window.dataLayer =
+      window.dataLayer || [];
+
     window.gtag =
       window.gtag ||
       function () {
@@ -443,31 +886,58 @@
       };
 
     gtag("js", new Date());
-    accountIds.forEach((accountId) => gtag("config", accountId));
+
+    accountIds.forEach(
+      (accountId) =>
+        gtag(
+          "config",
+          accountId
+        )
+    );
   }
 
+
   function sendConversions() {
-    if (typeof gtag !== "function") {
+    if (
+      typeof gtag !== "function"
+    ) {
       return;
     }
 
-    CONFIG.trackingTargets.forEach((sendTo) => {
-      gtag("event", "conversion", {
-        send_to: sendTo,
-        transport_type: "beacon",
-        event_timeout: 500,
-      });
-    });
+    CONFIG.trackingTargets.forEach(
+      (sendTo) => {
+        gtag(
+          "event",
+          "conversion",
+          {
+            send_to: sendTo,
+            transport_type:
+              "beacon",
+            event_timeout: 500,
+          }
+        );
+      }
+    );
   }
+
 
   async function initPage() {
     initTracking();
-    const [t] = await Promise.all([loadI18n(), applyAssets()]);
+
+    const [t] =
+      await Promise.all([
+        loadI18n(),
+        applyAssets()
+      ]);
+
     applyI18n(t);
     applyBonuses(t);
+
     await fitTexts();
   }
 </script>
+
+
 <style>
   *,
   ul {
@@ -477,11 +947,11 @@
 
   * {
     border: 0;
+    box-sizing: border-box;
   }
 
-  *,
-  :after,
-  :before {
+  *::before,
+  *::after {
     box-sizing: border-box;
   }
 
@@ -499,178 +969,262 @@
     display: block;
   }
 
-  section {
+  html {
+    width: 100vw;
     height: 100vh;
-    position: relative;
-    background-repeat: no-repeat !important;
-    background-position: top left !important;
-    background-size: cover !important;
-    z-index: 10;
-  }
 
-  .embeded-body::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    z-index: 1;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 
   body {
+    width: 100%;
     height: 100%;
+  }
+
+  html,
+  .body {
+    font-family:
+      Arial,
+      Helvetica,
+      sans-serif;
+
+    font-size: 14px;
+    line-height: 1;
+
+    color: #000;
+
+    -ms-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  section {
+    height: 100vh;
+    position: relative;
+
+    background-repeat:
+      no-repeat !important;
+
+    background-position:
+      top left !important;
+
+    background-size:
+      cover !important;
+
+    z-index: 10;
   }
 
   .body {
     width: 100vw;
     height: 100%;
+
     position: relative;
     z-index: 100;
   }
 
-  .body,
-  html {
-    font:
-      14px/1 Ubuntu,
-      sans-serif;
-    height: 100%;
+  .embeded-body::after {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
     width: 100%;
-    -ms-text-size-adjust: 100%;
-    -moz-text-size-adjust: 100%;
-    -webkit-text-size-adjust: 100%;
-    display: flex;
-    flex-direction: column;
-    color: #000;
+    height: 100%;
+
+    background:
+      rgba(0, 0, 0, 0.6);
+
+    z-index: 1;
   }
 
-  html {
-    width: 100vw;
-    height: 100vh;
-    overflow-x: hidden;
-    overflow-y: auto;
-  }
 
   @keyframes spinner {
     0% {
-      transform: rotate(-3deg);
+      transform:
+        rotate(-3deg);
     }
 
     50% {
-      transform: rotate(3deg);
+      transform:
+        rotate(3deg);
     }
 
     100% {
-      transform: rotate(-3deg);
+      transform:
+        rotate(-3deg);
     }
   }
+
 
   @keyframes antispinner {
     0% {
-      transform: rotate(3deg);
+      transform:
+        rotate(3deg);
     }
 
     50% {
-      transform: rotate(-3deg);
+      transform:
+        rotate(-3deg);
     }
 
     100% {
-      transform: rotate(3deg);
+      transform:
+        rotate(3deg);
     }
   }
 
+
   .first-spin {
-    animation: 5s firstSpin ease;
-    animation-fill-mode: forwards;
+    animation:
+      5s firstSpin ease;
+
+    animation-fill-mode:
+      forwards;
   }
 
+
   .second-spin {
-    animation: 5s secondSpin ease;
-    animation-fill-mode: forwards;
+    animation:
+      5s secondSpin ease;
+
+    animation-fill-mode:
+      forwards;
   }
+
 
   @keyframes firstSpin {
     from {
-      transform: rotate(0deg);
+      transform:
+        rotate(0deg);
     }
 
     to {
-      transform: rotate(1350deg);
+      transform:
+        rotate(1350deg);
     }
   }
+
 
   @keyframes secondSpin {
     from {
-      transform: rotate(1350deg);
+      transform:
+        rotate(1350deg);
     }
 
     to {
-      transform: rotate(2970deg);
+      transform:
+        rotate(2970deg);
     }
   }
 
+
   #banner .paragraph,
   #banner p {
-    color: unset !important;
-    font-family: "Ubuntu", sans-serif;
+    color:
+      unset !important;
+
+    font-family:
+      Arial,
+      Helvetica,
+      sans-serif;
   }
 
-  .footer::after {
-    display: none;
-  }
 
+  .footer::after,
   .header::after {
     display: none;
   }
 
+
   #weebly-footer-signup-container-v3 {
-    visibility: unset !important;
-    display: none !important;
-    height: unset !important;
-    position: unset !important;
-    bottom: 0px !important;
-    left: 0px;
-    right: 0px !important;
-    width: 100% !important;
-    z-index: -1 !important;
-    opacity: 0 !important;
+    visibility:
+      unset !important;
+
+    display:
+      none !important;
+
+    height:
+      unset !important;
+
+    position:
+      unset !important;
+
+    bottom:
+      0 !important;
+
+    left: 0;
+
+    right:
+      0 !important;
+
+    width:
+      100% !important;
+
+    z-index:
+      -1 !important;
+
+    opacity:
+      0 !important;
   }
 
+
   #panel-one {
-    height: 0px !important;
+    height:
+      0 !important;
   }
+
 
   #panel-two {
     height: 100vh;
-
-    #banner {
-      height: 100%;
-    }
   }
+
+  #panel-two #banner {
+    height: 100%;
+  }
+
 
   #wrapper {
     display: flex;
+
     align-items: center;
     justify-content: center;
+
     flex-direction: column;
   }
 
+
   .container {
-    padding: 0 !important;
+    padding:
+      0 !important;
   }
+
 
   .embeded-body img {
-    background: transparent !important;
+    background:
+      transparent !important;
   }
 
+
   .embeded-body > header {
-    padding: 0 !important;
-    background: transparent !important;
-    border: 0 !important;
-    box-shadow: none !important;
-    backdrop-filter: none !important;
+    padding:
+      0 !important;
+
+    background:
+      transparent !important;
+
+    border:
+      0 !important;
+
+    box-shadow:
+      none !important;
+
+    backdrop-filter:
+      none !important;
   }
+
 
   .cookie-banner,
   .cookie-modal,
@@ -678,19 +1232,673 @@
   [data-cookie-banner],
   [data-cookie-modal],
   [data-cookie-consent] {
-    display: none !important;
+    display:
+      none !important;
+  }
+
+
+  /* ========================================
+     ЛОГОТИП
+     ======================================== */
+
+  .logo {
+    padding:
+      20px 0 0 0;
+
+    width: 33.75%;
+    max-width: 324px;
+
+    height: 229.5px;
+  }
+
+  .logo img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: contain;
+  }
+
+
+  /* ========================================
+     ТЕКСТ НА КОЛЕСЕ
+     ======================================== */
+
+  .wheel-text-wrapper {
+    width: 100%;
+    height: 100%;
+
+    padding-top: 5%;
+
+    display: flex;
+
+    align-items: center;
+
+    flex-direction: column;
+  }
+
+  .wheel-text-wrapper p {
+    width: fit-content;
+
+    text-transform:
+      uppercase;
+  }
+
+  .wheel-text-wrapper p:not(:last-child) {
+    margin-bottom: 6px;
+  }
+
+
+  .wheel-text {
+    display: block;
+  }
+
+
+  .wheel-seg {
+    padding-top: 10px;
+
+    height: 51%;
+    width: 41.3%;
+
+    position: absolute;
+
+    -webkit-clip-path:
+      polygon(
+        100% 0,
+        50% 100%,
+        0 0
+      );
+
+    clip-path:
+      polygon(
+        100% 0,
+        50% 100%,
+        0 0
+      );
+
+    translate: -50% 0;
+
+    transform-origin:
+      bottom;
+
+    text-align: center;
+
+    display: flex;
+
+    align-items:
+      flex-start;
+
+    justify-content:
+      center;
+
+    left: 50%;
+  }
+
+
+  .wheel-seg:nth-child(odd) {
+    background:
+      linear-gradient(
+        0deg,
+        rgb(0, 169, 0) 23%,
+        rgb(0, 110, 0) 74%
+      );
+  }
+
+
+  .wheel-seg:nth-child(even) {
+    background:
+      linear-gradient(
+        0deg,
+        rgb(0, 169, 0) 23%,
+        rgb(1, 87, 1) 74%
+      );
+  }
+
+
+  .wheel-seg:nth-child(1) {
+    left: 50%;
+  }
+
+  .wheel-seg:nth-child(2) {
+    rotate: 45deg;
+  }
+
+  .wheel-seg:nth-child(3) {
+    rotate: 90deg;
+  }
+
+  .wheel-seg:nth-child(4) {
+    rotate: 135deg;
+  }
+
+  .wheel-seg:nth-child(5) {
+    rotate: 180deg;
+  }
+
+  .wheel-seg:nth-child(6) {
+    rotate: 225deg;
+  }
+
+  .wheel-seg:nth-child(7) {
+    rotate: 270deg;
+  }
+
+  .wheel-seg:nth-child(8) {
+    rotate: 315deg;
+  }
+
+
+  /* ========================================
+     РАМКА / УКАЗАТЕЛЬ
+     ======================================== */
+
+  .frame {
+    position: absolute;
+
+    z-index: 5;
+
+    top: -1%;
+    left: 50%;
+
+    translate: -50% 0;
+
+    height: 60%;
+  }
+
+  .frame img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: contain;
+  }
+
+
+  /* ========================================
+     ПОПАПЫ
+     ======================================== */
+
+  .popup {
+    position: fixed;
+
+    width: 100%;
+    height: 100%;
+
+    left: 0;
+    top: 0;
+
+    background:
+      rgba(0, 0, 0, 0.4);
+
+    z-index: 10;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    transition:
+      0.2s ease;
+
+    opacity: 0;
+
+    pointer-events: none;
+  }
+
+
+  .popup .popup-body {
+    background:
+      url("https://alphaclick.click/wheel/bg-modal.avif")
+      no-repeat
+      center / cover;
+
+    border:
+      2px solid #fbd84d;
+
+    border-radius:
+      20px;
+
+    padding: 30px;
+
+    width: 90%;
+    max-width: 600px;
+  }
+
+
+  /*
+   * ТОНКИЙ ЗАГОЛОВОК ПОПАПА
+   * как на предоставленном скрине
+   */
+  .popup .popup-title {
+    font-family:
+      Georgia,
+      "Times New Roman",
+      Times,
+      serif !important;
+
+    font-weight:
+      400 !important;
+
+    font-style:
+      normal !important;
+
+    letter-spacing:
+      -1px !important;
+
+    line-height:
+      1.08 !important;
+  }
+
+
+  /*
+   * "ВАШ ВЫИГРЫШ: 120%"
+   * тонкий обычный шрифт
+   */
+  .popup .popup-text {
+    color:
+      #fff !important;
+
+    text-align:
+      center;
+
+    font-family:
+      Arial,
+      Helvetica,
+      sans-serif !important;
+
+    font-size:
+      24px;
+
+    font-weight:
+      400 !important;
+
+    letter-spacing:
+      -0.45px !important;
+
+    line-height:
+      1.2;
+
+    margin-bottom:
+      25px;
+  }
+
+
+  .popup .popup-text-prefix,
+  .popup .popup-text-value {
+    font-family:
+      Arial,
+      Helvetica,
+      sans-serif !important;
+
+    font-weight:
+      400 !important;
+
+    letter-spacing:
+      -0.45px !important;
+  }
+
+
+  .popup .popup-text-value {
+    white-space:
+      pre-line;
+  }
+
+
+  /*
+   * Кнопка по скрину остаётся более жирной
+   */
+  .popup .popup-btn {
+    width: 100%;
+
+    color: #612901;
+
+    border-bottom:
+      4px solid #7e5205;
+
+    background:
+      linear-gradient(
+        180deg,
+        rgb(224, 138, 13) 0%,
+        rgb(255, 196, 70) 40%,
+        rgb(255, 196, 70) 60%,
+        rgb(224, 138, 13) 100%
+      );
+
+    display: block;
+
+    border-radius: 16px;
+
+    font-family:
+      Arial,
+      Helvetica,
+      sans-serif !important;
+
+    font-size: 25px;
+
+    font-weight:
+      700 !important;
+
+    letter-spacing:
+      0 !important;
+
+    line-height:
+      1.05;
+
+    padding:
+      24px 33px;
+
+    text-transform:
+      uppercase;
+
+    margin-left:
+      auto;
+
+    margin-right:
+      auto;
+
+    overflow:
+      hidden;
+
+    position:
+      relative;
+
+    text-decoration:
+      none;
+
+    text-align:
+      center;
+  }
+
+
+  #second-popup .popup-text-prefix {
+    display: block;
+
+    margin-bottom:
+      10px;
+  }
+
+
+  #second-popup .popup-text-value {
+    display: block;
+  }
+
+
+  .active-popup {
+    opacity: 1;
+
+    pointer-events:
+      all;
+  }
+
+
+  /* ========================================
+     ГЛАВНЫЙ ТЕКСТ:
+     "Крути и выигрывай!"
+     ======================================== */
+
+  .offer h1 {
+    font-family:
+      Georgia,
+      "Times New Roman",
+      Times,
+      serif !important;
+
+    font-weight:
+      400 !important;
+
+    font-style:
+      normal !important;
+
+    letter-spacing:
+      -1px !important;
+
+    line-height:
+      1.05 !important;
+
+    text-rendering:
+      geometricPrecision;
+  }
+
+
+  /*
+   * "Ваши попытки: 2"
+   */
+  .offer p,
+  .offer #counter {
+    font-family:
+      Arial,
+      Helvetica,
+      sans-serif !important;
+
+    font-weight:
+      400 !important;
+
+    font-style:
+      normal !important;
+
+    letter-spacing:
+      -0.45px !important;
+
+    line-height:
+      1.15 !important;
+  }
+
+
+  .offer #counter {
+    font-weight:
+      400 !important;
+  }
+
+
+  /* ========================================
+     АНИМАЦИЯ
+     ======================================== */
+
+  .animate {
+    animation:
+      2s spinner
+      ease-in-out
+      infinite;
+  }
+
+
+  .wheel::after {
+    content: "";
+
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    translate:
+      -50% -50%;
+
+    display: block;
+
+    width: 75%;
+    height: 75%;
+
+    background:
+      var(
+        --wheel-mask-url,
+        url("https://alphaclick.click/wheel/wheel-mask.avif")
+      )
+      no-repeat
+      center / contain;
+  }
+
+
+  .powered-by-badge {
+    display:
+      none !important;
+  }
+
+
+  /* ========================================
+     MOBILE
+     ======================================== */
+
+  @media (max-width: 767px) {
+
+    .body > header {
+      position:
+        absolute !important;
+
+      left:
+        0 !important;
+
+      width:
+        100% !important;
+    }
+
+
+    .logo {
+      transform:
+        translateY(-30px) !important;
+    }
+
+
+    #first-popup.popup,
+    #second-popup.popup {
+      position:
+        fixed !important;
+
+      inset:
+        0 !important;
+
+      width:
+        100vw !important;
+
+      height:
+        100vh !important;
+
+      height:
+        100dvh !important;
+
+      margin:
+        0 !important;
+
+      transform:
+        none !important;
+    }
+
+
+    #first-popup .popup-body,
+    #second-popup .popup-body {
+      position:
+        fixed !important;
+
+      left:
+        50vw !important;
+
+      top:
+        50vh !important;
+
+      top:
+        50dvh !important;
+
+      width:
+        min(
+          90vw,
+          600px
+        ) !important;
+
+      max-height:
+        calc(
+          100dvh - 32px
+        );
+
+      margin:
+        0 !important;
+
+      overflow-y:
+        auto;
+
+      transform:
+        translate(
+          -50%,
+          -50%
+        ) !important;
+    }
+
+
+    .main {
+      top:
+        -2vh !important;
+
+      transform:
+        none !important;
+    }
+
+
+    .wheel {
+      --wheel-size:
+        100%;
+
+      top:
+        30px !important;
+
+      flex-shrink:
+        0 !important;
+
+      max-width:
+        none !important;
+    }
+
+
+    /*
+     * На мобильном чуть ближе
+     * к размеру шрифта со скрина.
+     */
+    .offer h1 {
+      font-weight:
+        400 !important;
+    }
+
+
+    .offer p,
+    .offer #counter {
+      font-weight:
+        400 !important;
+    }
+
+
+    .popup .popup-title {
+      font-weight:
+        400 !important;
+    }
+
+
+    .popup .popup-text,
+    .popup .popup-text-prefix,
+    .popup .popup-text-value {
+      font-weight:
+        400 !important;
+    }
+  }
+
+
+  @media (min-width: 500px) {
+    .wheel {
+      max-width:
+        700px;
+    }
   }
 </style>
-<section class="body embeded-body" style="
+
+
+<section
+  class="body embeded-body"
+  style="
     width: 100%;
     height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    justify-content: center;
     overflow: hidden;
-  ">
-  <header style="
+  "
+>
+
+  <header
+    style="
       display: flex;
       align-items: center;
       justify-content: center;
@@ -699,43 +1907,22 @@
       width: 100%;
       left: 0;
       top: 0;
-    ">
+    "
+  >
+
     <div class="logo">
-      <style>
-        .logo {
-          padding: 20px 0 0 0;
-          width: 33.75%;
-          max-width: 324px;
-          height: 229.5px;
-
-          img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-          }
-        }
-
-        .wheel-text-wrapper {
-          width: 100%;
-          height: 100%;
-          padding-top: 5%;
-          display: flex;
-          align-items: center;
-          flex-direction: column;
-
-          p {
-            width: fit-content;
-            text-transform: uppercase;
-          }
-
-          p:not(last-child) {
-            margin-bottom: 6px;
-          }
-        }
-      </style><img src="https://alphaclick.click/system/loader.svg" alt="logo" />
+      <img
+        src="https://alphaclick.click/system/loader.svg"
+        alt="logo"
+      />
     </div>
+
   </header>
-  <div class="main" style="
+
+
+  <div
+    class="main"
+    style="
       position: relative;
       z-index: 10;
       display: flex;
@@ -743,512 +1930,689 @@
       justify-content: center;
       width: 100%;
       height: auto;
-    ">
-    <div class="wheel" style="
+    "
+  >
+
+    <div
+      class="wheel"
+      style="
         width: var(--wheel-size, 100%);
         min-width: var(--wheel-size, 0);
         flex: 0 0 var(--wheel-size, auto);
         height: auto;
-        background: url(&quot;https://alphaclick.click/wheel/steel-wheel-holder.avif&quot;)
+        background:
+          url('https://alphaclick.click/wheel/steel-wheel-holder.avif')
           no-repeat top left / contain;
         aspect-ratio: 1 / 1;
         position: relative;
         display: flex;
         align-items: center;
         justify-content: center;
-      ">
-      <div class="wheel-body animate" style="
+      "
+    >
+
+      <div
+        class="wheel-body animate"
+        style="
           position: relative;
           background: black;
           width: 75%;
           height: 75%;
           border-radius: 50%;
           overflow: hidden;
-        ">
+        "
+      >
+
         <div class="wheel-seg">
           <div class="wheel-text-wrapper adopt">
-            <p class="wheel-big-text wheel-text" style="color: #fbd84d !important; margin: 0 0 6px 0 !important">
+
+            <p
+              class="wheel-big-text wheel-text"
+              style="
+                color: #fbd84d !important;
+                margin: 0 0 6px 0 !important;
+              "
+            >
               +2
             </p>
-            <p class="wheel-small-text wheel-text" style="color: #fff !important; margin: 0 !important">
+
+            <p
+              class="wheel-small-text wheel-text"
+              style="
+                color: #fff !important;
+                margin: 0 !important;
+              "
+            >
               Spins
             </p>
+
           </div>
         </div>
+
+
         <div class="wheel-seg">
           <div class="wheel-text-wrapper adopt">
-            <p class="wheel-empty-text wheel-text" style="color: #7ccc33 !important; margin: 0 0 6px 0 !important">
+
+            <p
+              class="wheel-empty-text wheel-text"
+              style="
+                color: #7ccc33 !important;
+                margin: 0 0 6px 0 !important;
+              "
+            >
               Nochmal
             </p>
+
           </div>
         </div>
+
+
         <div class="wheel-seg">
           <div class="wheel-text-wrapper adopt">
-            <p class="wheel-big-text wheel-text" style="color: #fbd84d !important; margin: 0 0 6px 0 !important">
+
+            <p
+              class="wheel-big-text wheel-text"
+              style="
+                color: #fbd84d !important;
+                margin: 0 0 6px 0 !important;
+              "
+            >
               300
             </p>
-            <p class="wheel-small-text wheel-text" style="color: #fff !important; margin: 0 !important">
+
+            <p
+              class="wheel-small-text wheel-text"
+              style="
+                color: #fff !important;
+                margin: 0 !important;
+              "
+            >
               FS
             </p>
+
           </div>
         </div>
+
+
         <div class="wheel-seg">
           <div class="wheel-text-wrapper adopt">
-            <p class="wheel-empty-text wheel-text" style="color: #7ccc33 !important; margin: 0 !important">
+
+            <p
+              class="wheel-empty-text wheel-text"
+              style="
+                color: #7ccc33 !important;
+                margin: 0 !important;
+              "
+            >
               Leer
             </p>
+
           </div>
         </div>
+
+
         <div class="wheel-seg">
           <div class="wheel-text-wrapper adopt">
-            <p class="wheel-big-text wheel-text" style="color: #fbd84d !important; margin: 0 0 6px 0 !important">
+
+            <p
+              class="wheel-big-text wheel-text"
+              style="
+                color: #fbd84d !important;
+                margin: 0 0 6px 0 !important;
+              "
+            >
               +2
             </p>
-            <p class="wheel-small-text wheel-text" style="color: #fff !important; margin: 0 !important">
+
+            <p
+              class="wheel-small-text wheel-text"
+              style="
+                color: #fff !important;
+                margin: 0 !important;
+              "
+            >
               Spins
             </p>
+
           </div>
         </div>
+
+
         <div class="wheel-seg">
           <div class="wheel-text-wrapper adopt">
-            <p class="wheel-empty-text wheel-text" style="color: #7ccc33 !important; margin: 0 !important">
+
+            <p
+              class="wheel-empty-text wheel-text"
+              style="
+                color: #7ccc33 !important;
+                margin: 0 !important;
+              "
+            >
               Nochmal
             </p>
+
           </div>
         </div>
+
+
         <div class="wheel-seg">
           <div class="wheel-text-wrapper adopt">
-            <p class="wheel-big-text wheel-text" style="color: #fbd84d !important; margin: 0 0 6px 0 !important">
+
+            <p
+              class="wheel-big-text wheel-text"
+              style="
+                color: #fbd84d !important;
+                margin: 0 0 6px 0 !important;
+              "
+            >
               BIS ZU
             </p>
-            <p class="wheel-small-text wheel-text" style="color: #fff !important; margin: 0 !important">
+
+            <p
+              class="wheel-small-text wheel-text"
+              style="
+                color: #fff !important;
+                margin: 0 !important;
+              "
+            >
               3.000€
             </p>
+
           </div>
         </div>
+
+
         <div class="wheel-seg">
           <div class="wheel-text-wrapper adopt">
-            <p class="wheel-empty-text wheel-text" style="color: #7ccc33 !important; margin: 0 !important">
+
+            <p
+              class="wheel-empty-text wheel-text"
+              style="
+                color: #7ccc33 !important;
+                margin: 0 !important;
+              "
+            >
               Leer
             </p>
+
           </div>
         </div>
-        <style>
-          .wheel-text {
-            display: block;
-          }
 
-          .wheel-seg {
-            padding-top: 10px;
-            height: 51%;
-            width: 41.3%;
-            position: absolute;
-            -webkit-clip-path: polygon(100% 0, 50% 100%, 0 0);
-            clip-path: polygon(100% 0, 50% 100%, 0 0);
-            translate: -50% 0;
-            transform-origin: bottom;
-            text-align: center;
-            display: flex;
-            align-items: flex-start;
-            justify-content: center;
-            left: 50%;
-          }
-
-          .wheel-seg:nth-child(odd) {
-            background: linear-gradient(0deg,
-                rgb(0, 169, 0) 23%,
-                rgb(0, 110, 0) 74%);
-          }
-
-          .wheel-seg:nth-child(even) {
-            background: linear-gradient(0deg,
-                rgb(0, 169, 0) 23%,
-                rgb(1, 87, 1) 74%);
-          }
-
-          .wheel-seg:nth-child(1) {
-            left: 50%;
-          }
-
-          .wheel-seg:nth-child(2) {
-            rotate: 45deg;
-          }
-
-          .wheel-seg:nth-child(3) {
-            rotate: 90deg;
-          }
-
-          .wheel-seg:nth-child(4) {
-            rotate: 135deg;
-          }
-
-          .wheel-seg:nth-child(5) {
-            rotate: 180deg;
-          }
-
-          .wheel-seg:nth-child(6) {
-            rotate: 225deg;
-          }
-
-          .wheel-seg:nth-child(7) {
-            rotate: 270deg;
-          }
-
-          .wheel-seg:nth-child(8) {
-            rotate: 315deg;
-          }
-        </style>
       </div>
-      <button class="start" style="
+
+
+      <button
+        class="start"
+        style="
           position: absolute;
           margin: auto;
           top: 0;
           bottom: 0;
           right: 0;
           left: 0;
-          background: url(&quot;https://alphaclick.click/wheel/trigger.avif&quot;)
-            no-repeat center/contain;
+
+          background:
+            url('https://alphaclick.click/wheel/trigger.avif')
+            no-repeat center / contain;
+
           width: 25%;
           height: 25%;
+
           z-index: 10;
+
           color: #612901;
+
           font-weight: 600;
+
           display: flex;
+
           align-items: center;
           justify-content: center;
+
           text-transform: uppercase;
-        ">
-        <p style="width: fit-content; padding: 0; margin:0; color: #612901;">Drehen</p>
-      </button>
-      <div class="frame">
-        <img src="https://alphaclick.click/wheel/wheel-win-frame.avif" alt="" />
-      </div>
-      <style>
-        .frame {
-          position: absolute;
-          z-index: 5;
-          top: -1%;
-          left: 50%;
-          translate: -50% 0;
-          height: 60%;
+        "
+      >
 
-          img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-          }
-        }
-
-        .popup {
-          position: fixed;
-          width: 100%;
-          height: 100%;
-          left: 0;
-          top: 0;
-          background: rgba(0, 0, 0, 0.4);
-          z-index: 10;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: 0.2s ease;
-          opacity: 0;
-          pointer-events: none;
-
-          .popup-body {
-            background: url("https://alphaclick.click/wheel/bg-modal.avif") no-repeat center / cover;
-            border: 2px solid #fbd84d;
-            border-radius: 20px;
-            padding: 30px;
-            width: 90%;
-            max-width: 600px;
-          }
-
-          .popup-btn {
-            width: 100%;
+        <p
+          style="
+            width: fit-content;
+            padding: 0;
+            margin: 0;
             color: #612901;
-            border-bottom: 4px solid #7e5205;
-            background: rgb(224, 138, 13);
-            background: linear-gradient(180deg,
-                rgb(224, 138, 13) 0%,
-                rgb(255, 196, 70) 40%,
-                rgb(255, 196, 70) 60%,
-                rgb(224, 138, 13) 100%);
-            display: block;
-            border-radius: 16px;
-            font-size: 25px;
-            padding: 24px 33px;
-            text-transform: uppercase;
-            font-weight: 700;
-            margin-left: auto;
-            margin-right: auto;
-            overflow: hidden;
-            position: relative;
-            text-decoration: none;
-            text-align: center;
-          }
+          "
+        >
+          Drehen
+        </p>
 
-          .popup-text {
-            color: #fff !important;
-            text-align: center;
-            font-size: 24px;
-            margin-bottom: 25px;
-            font-weight: 500;
-          }
+      </button>
 
-          .popup-text-value {
-            white-space: pre-line;
-          }
-        }
 
-        #second-popup {
-          .popup-text-prefix {
-            display: block;
-            margin-bottom: 10px;
-          }
+      <div class="frame">
 
-          .popup-text-value {
-            display: block;
-          }
-        }
+        <img
+          src="https://alphaclick.click/wheel/wheel-win-frame.avif"
+          alt=""
+        />
 
-        .active-popup {
-          opacity: 1;
-          pointer-events: all;
-        }
-      </style>
+      </div>
+
     </div>
+
   </div>
-  <div class="offer" style="
+
+
+  <!-- ======================================
+       ВЕРХНИЙ ТЕКСТ
+       ====================================== -->
+
+  <div
+    class="offer"
+    style="
       padding: 15px;
+
       border-radius: 15px;
-      background-color: rgba(0, 0, 0, 0.4);
+
+      background-color:
+        rgba(0, 0, 0, 0.4);
+
       position: relative;
+
       z-index: 10;
-    ">
-    <h1 style="
+    "
+  >
+
+    <h1
+      style="
         color: #fbd84d !important;
         text-align: center;
         margin: 0 0 10px 0;
         font-size: 30px;
-      ">
-      Drehe und gewinne!
+      "
+    >
+      Крути и выигрывай!
     </h1>
-    <p style="color: #fff !important; text-align: center; font-size: 22px">
-      Ihre Versuche: <span id="counter">2</span>
+
+
+    <p
+      style="
+        color: #fff !important;
+        text-align: center;
+        font-size: 22px;
+      "
+    >
+      Ваши попытки:
+      <span id="counter">2</span>
     </p>
+
   </div>
-  <div id="first-popup" class="popup">
+
+
+  <!-- ======================================
+       ПЕРВЫЙ ПОПАП
+       ====================================== -->
+
+  <div
+    id="first-popup"
+    class="popup"
+  >
+
     <div class="popup-body">
-      <h2 class="popup-title" style="
+
+      <h2
+        class="popup-title"
+        style="
           color: #fbd84d !important;
           text-align: center;
-          margin-bottom: 9px;
           font-size: 30px;
-          margin-bottom: 20px;
-        ">
-        Dein Gewinn:
+          margin: 0 0 20px 0;
+        "
+      >
+        Поздравляем!
       </h2>
+
+
       <p class="popup-text">
-        <span class="popup-text-prefix"></span>
-        <span class="popup-text-value">300 FS</span>
+
+        <span
+          class="popup-text-prefix"
+        ></span>
+
+        <span
+          class="popup-text-value"
+        >
+          120%
+        </span>
+
       </p>
-      <a href="#" id="secsp" class="popup-btn adopt">Nochmal</a>
+
+
+      <a
+        href="#"
+        id="secsp"
+        class="popup-btn adopt"
+      >
+        Ещё раз
+      </a>
+
     </div>
+
   </div>
-  <div id="second-popup" class="popup">
+
+
+  <!-- ======================================
+       ВТОРОЙ ПОПАП
+       ====================================== -->
+
+  <div
+    id="second-popup"
+    class="popup"
+  >
+
     <div class="popup-body">
-      <h2 class="popup-title" style="
+
+      <h2
+        class="popup-title"
+        style="
           color: #fbd84d !important;
           text-align: center;
-          margin-bottom: 9px;
           font-size: 30px;
-          margin-bottom: 20px;
-        ">
-        Glückwunsch!
+          margin: 0 0 20px 0;
+        "
+      >
+        Поздравляем!
       </h2>
+
+
       <p class="popup-text">
-        <span class="popup-text-prefix">Dein Gewinn: 300 FS</span>
-        <span class="popup-text-value">+ BIS ZU 3.000€</span>
+
+        <span
+          class="popup-text-prefix"
+        >
+          ВАШ ВЫИГРЫШ: 120%
+        </span>
+
+        <span
+          class="popup-text-value"
+        >
+          + 250 FS
+        </span>
+
       </p>
-      <a href="#" id="d25c38c9-c12e-670a-4afb-5b9f8d6045ee" class="popup-btn adopt">Bonus abholen</a>
+
+
+      <a
+        href="#"
+        id="d25c38c9-c12e-670a-4afb-5b9f8d6045ee"
+        class="popup-btn adopt"
+      >
+        Забрать бонус
+      </a>
+
+
       <script>
         document
-          .querySelector("#d25c38c9-c12e-670a-4afb-5b9f8d6045ee")
-          .addEventListener("click", function (e) {
-            e.preventDefault();
-            try {
-              sendConversions();
-            } catch (e) { }
-            window.location.href = CONFIG.offerURI;
-          });
+          .querySelector(
+            "#d25c38c9-c12e-670a-4afb-5b9f8d6045ee"
+          )
+          .addEventListener(
+            "click",
+            function (e) {
+              e.preventDefault();
+
+              try {
+                sendConversions();
+              } catch (e) {}
+
+              window.location.href =
+                CONFIG.offerURI;
+            }
+          );
       </script>
+
     </div>
+
   </div>
-  <style>
-    .animate {
-      animation: 2s spinner ease-in-out infinite;
-    }
 
-    .wheel::after {
-      content: "";
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      translate: -50% -50%;
-      display: block;
-      width: 75%;
-      height: 75%;
-      background: url("https://alphaclick.click/wheel/wheel-mask.avif") no-repeat center / contain;
-    }
 
-    @media (max-width: 767px) {
-      .body > header {
-        position: absolute !important;
-        left: 0 !important;
-        width: 100% !important;
-      }
-
-      .logo {
-        transform: translateY(-30px) !important;
-      }
-
-      #first-popup.popup,
-      #second-popup.popup {
-        position: fixed !important;
-        inset: 0 !important;
-        width: 100vw !important;
-        height: 100vh !important;
-        height: 100dvh !important;
-        margin: 0 !important;
-        transform: none !important;
-      }
-
-      #first-popup .popup-body,
-      #second-popup .popup-body {
-        position: fixed !important;
-        left: 50vw !important;
-        top: 50vh !important;
-        top: 50dvh !important;
-        width: min(90vw, 600px) !important;
-        max-height: calc(100dvh - 32px);
-        margin: 0 !important;
-        overflow-y: auto;
-        transform: translate(-50%, -50%) !important;
-      }
-
-      .main {
-        top: -2vh !important;
-        transform: none !important;
-      }
-
-      .wheel {
-        --wheel-size: 100%;
-        top: 30px !important;
-        flex-shrink: 0 !important;
-        max-width: none !important;
-      }
-    }
-
-    @media (min-width: 500px) {
-      .wheel {
-        max-width: 700px;
-      }
-    }
-
-    .powered-by-badge {
-      display: none !important;
-    }
-  </style>
   <script>
-    const startBtn = document.querySelector(".start");
-    const wheelBody = document.querySelector(".wheel-body");
-    const firstPopup = document.querySelector("#first-popup");
-    const secondPopup = document.querySelector("#second-popup");
-    const secsp = document.querySelector("#secsp");
-    let counter = document.querySelector("#counter");
-    const storageKey = `wheel-state:${CONFIG.lang}:${CONFIG.brand}`;
+    const startBtn =
+      document.querySelector(
+        ".start"
+      );
+
+    const wheelBody =
+      document.querySelector(
+        ".wheel-body"
+      );
+
+    const firstPopup =
+      document.querySelector(
+        "#first-popup"
+      );
+
+    const secondPopup =
+      document.querySelector(
+        "#second-popup"
+      );
+
+    const secsp =
+      document.querySelector(
+        "#secsp"
+      );
+
+    let counter =
+      document.querySelector(
+        "#counter"
+      );
+
+
+    const storageKey =
+      `wheel-state:${CONFIG.lang}:${CONFIG.brand}`;
+
 
     function readSavedState() {
       try {
-        return JSON.parse(localStorage.getItem(storageKey) || "null");
+        return JSON.parse(
+          localStorage.getItem(
+            storageKey
+          ) || "null"
+        );
       } catch (e) {
         return null;
       }
     }
 
+
     function saveFinishedState() {
-      const prefixNode = secondPopup.querySelector(".popup-text-prefix");
-      const valueNode = secondPopup.querySelector(".popup-text-value");
+      const prefixNode =
+        secondPopup.querySelector(
+          ".popup-text-prefix"
+        );
+
+      const valueNode =
+        secondPopup.querySelector(
+          ".popup-text-value"
+        );
 
       try {
         localStorage.setItem(
           storageKey,
           JSON.stringify({
             finished: true,
-            bonus1: CONFIG.bonuses.first,
-            bonus2: CONFIG.bonuses.second,
-            popupPrefix: prefixNode ? prefixNode.textContent : "",
-            popupValue: valueNode ? valueNode.textContent : "",
-          }),
+
+            bonus1:
+              CONFIG.bonuses.first,
+
+            bonus2:
+              CONFIG.bonuses.second,
+
+            popupPrefix:
+              prefixNode
+                ? prefixNode.textContent
+                : "",
+
+            popupValue:
+              valueNode
+                ? valueNode.textContent
+                : "",
+          })
         );
-      } catch (e) { }
+      } catch (e) {}
     }
 
-    function applySavedPopupText(state) {
-      const prefixNode = secondPopup.querySelector(".popup-text-prefix");
-      const valueNode = secondPopup.querySelector(".popup-text-value");
 
-      if (prefixNode && typeof state.popupPrefix === "string") {
-        prefixNode.textContent = state.popupPrefix;
-        prefixNode.hidden = !state.popupPrefix;
+    function applySavedPopupText(
+      state
+    ) {
+      const prefixNode =
+        secondPopup.querySelector(
+          ".popup-text-prefix"
+        );
+
+      const valueNode =
+        secondPopup.querySelector(
+          ".popup-text-value"
+        );
+
+
+      if (
+        prefixNode &&
+        typeof state.popupPrefix ===
+          "string"
+      ) {
+        prefixNode.textContent =
+          state.popupPrefix;
+
+        prefixNode.hidden =
+          !state.popupPrefix;
       }
 
-      if (valueNode && typeof state.popupValue === "string") {
-        valueNode.textContent = state.popupValue;
-        valueNode.hidden = !state.popupValue;
+
+      if (
+        valueNode &&
+        typeof state.popupValue ===
+          "string"
+      ) {
+        valueNode.textContent =
+          state.popupValue;
+
+        valueNode.hidden =
+          !state.popupValue;
       }
     }
+
 
     function showSavedWinState() {
-      const state = readSavedState();
-      if (!state?.finished) return;
+      const state =
+        readSavedState();
 
-      applySavedPopupText(state);
-      wheelBody.classList.remove("animate", "first-spin");
-      wheelBody.classList.add("second-spin");
-      firstPopup.classList.remove("active-popup");
-      secondPopup.classList.add("active-popup");
-      if (counter) counter.innerHTML = "0";
-      fitTexts().catch(() => { });
-    }
-
-    initPage().then(() => {
-      counter = document.querySelector("#counter");
-      showSavedWinState();
-    });
-    startBtn.addEventListener("click", function () {
-      if (readSavedState()?.finished) {
-        showSavedWinState();
+      if (!state?.finished) {
         return;
       }
 
-      wheelBody.classList.remove("animate");
-      wheelBody.classList.add("first-spin");
-      if (counter) counter.innerHTML = "1";
-      setTimeout(function () {
-        firstPopup.classList.add("active-popup");
-      }, 6000);
+      applySavedPopupText(state);
+
+      wheelBody.classList.remove(
+        "animate",
+        "first-spin"
+      );
+
+      wheelBody.classList.add(
+        "second-spin"
+      );
+
+      firstPopup.classList.remove(
+        "active-popup"
+      );
+
+      secondPopup.classList.add(
+        "active-popup"
+      );
+
+      if (counter) {
+        counter.innerHTML = "0";
+      }
+
+      fitTexts().catch(
+        () => {}
+      );
+    }
+
+
+    initPage().then(() => {
+      counter =
+        document.querySelector(
+          "#counter"
+        );
+
+      showSavedWinState();
     });
-    secsp.addEventListener("click", function (e) {
-      e.preventDefault();
-      firstPopup.classList.remove("active-popup");
-      wheelBody.classList.add("second-spin");
-      if (counter) counter.innerHTML = "0";
-      setTimeout(function () {
-        saveFinishedState();
-        secondPopup.classList.add("active-popup");
-      }, 6000);
-    });
+
+
+    startBtn.addEventListener(
+      "click",
+      function () {
+
+        if (
+          readSavedState()?.finished
+        ) {
+          showSavedWinState();
+          return;
+        }
+
+        wheelBody.classList.remove(
+          "animate"
+        );
+
+        wheelBody.classList.add(
+          "first-spin"
+        );
+
+        if (counter) {
+          counter.innerHTML = "1";
+        }
+
+        setTimeout(
+          function () {
+            firstPopup.classList.add(
+              "active-popup"
+            );
+          },
+          6000
+        );
+      }
+    );
+
+
+    secsp.addEventListener(
+      "click",
+      function (e) {
+        e.preventDefault();
+
+        firstPopup.classList.remove(
+          "active-popup"
+        );
+
+        wheelBody.classList.add(
+          "second-spin"
+        );
+
+        if (counter) {
+          counter.innerHTML = "0";
+        }
+
+        setTimeout(
+          function () {
+            saveFinishedState();
+
+            secondPopup.classList.add(
+              "active-popup"
+            );
+          },
+          6000
+        );
+      }
+    );
   </script>
 
 </section>
